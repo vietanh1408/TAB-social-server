@@ -1,0 +1,27 @@
+GET http://localhost:5000/api/post
+
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2MGEwYTBjZTYyZDJkNDI0YjhlOTAxZmMiLCJpYXQiOjE2MjExMzk5NzN9.PvJT0Y-T8o5WtZLmpYvM-S0WDQsuX5Te7w15EOVpSQk
+
+###
+
+POST http://localhost:5000/api/auth/login
+
+Content-Type: application/json
+
+{
+    "email": "test01@gmail.com",
+    "password": "123456"
+}
+
+###
+POST http://localhost:5000/api/auth/register
+
+Content-Type: application/json
+
+{
+    "name": "test02",
+    "email": "test02@gmail.com",
+    "phone": "123541231",
+    "password": "123456"
+}
