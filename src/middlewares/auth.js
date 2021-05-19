@@ -8,7 +8,7 @@ const verifyToken = (req, res, next) => {
 
     if (!token) return res.status(401).json({
         success: false,
-        error: "Access token not found"
+        message: "Access token not found"
     })
 
     try {
@@ -20,7 +20,7 @@ const verifyToken = (req, res, next) => {
     } catch (err) {
         res.status(500).json({
             status: false,
-            error: "Interal server error"
+            message: "Interal server error"
         })
     }
 

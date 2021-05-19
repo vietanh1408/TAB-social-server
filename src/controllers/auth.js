@@ -12,7 +12,7 @@ module.exports.checkAuth = async (req, res, next) => {
         const user = await User.findById(req.userId)
         if(!user) return res.status(400).json({
             success: false,
-            error: 'Not found user'
+            message: 'Not found user'
         })
         res.json({
             success: true,
@@ -24,7 +24,7 @@ module.exports.checkAuth = async (req, res, next) => {
     } catch (error) {
         res.status(500).json({
             success: false,
-            error: "Internal server error"
+            message: "Internal server error"
         })
     }
 }
@@ -35,14 +35,14 @@ module.exports.register = async (req, res, next) => {
     const { error } = registerValidation(req.body)
     if (error) return res.status(400).json({
         success: false,
-        error: error.details[0].message
+        message: error.details[0].message
     })
 
     // check email already exist
     const emailExist = await User.findOne({ email: req.body.email })
     if (emailExist) return res.status(400).json({
         success: false,
-        error: 'Email address already exists'
+        message: 'Email address already exists'
     })
 
     // hash password
@@ -71,7 +71,7 @@ module.exports.register = async (req, res, next) => {
     } catch (err) {
         res.status(500).json({
             success: false,
-            error: "Internal server error"
+            message: "Internal server error"
         })
     }
 }
@@ -84,7 +84,7 @@ module.exports.login = async (req, res, next) => {
     const { error } = loginValidation(req.body)
     if (error) return res.status(400).json({
         success: false,
-        error: error.details[0].message
+        message: error.details[0].message
     })
 
     try {
@@ -93,14 +93,14 @@ module.exports.login = async (req, res, next) => {
         const user = await User.findOne({ email: req.body.email })
         if (!user) return res.status(400).json({
             success: false,
-            error: "Incorrect username or password"
+            message: "Incorrect username or password"
         })
 
         // check password
         const validPassword = await bcrypt.compare(req.body.password, user.password)
         if (!validPassword) return res.status(400).json({
             success: false,
-            error: "Password invalid!"
+            message: "Password invalid!"
         })
 
         //create and assign a token
@@ -115,7 +115,7 @@ module.exports.login = async (req, res, next) => {
     } catch (err) {
         res.status(500).json({
             success: false,
-            error: "Internal server error"
+            message: "Internal server error"
         })
     }
 

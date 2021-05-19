@@ -15,7 +15,7 @@ module.exports.getOwnPost = async (req, res, next) => {
     } catch (err) {
         res.status(500).json({
             success: false,
-            error: 'Internal server error'
+            message: 'Internal server error'
         })
     }
 }
@@ -36,7 +36,7 @@ module.exports.getPostById = async (req, res, next) => {
     } catch (err) {
         res.status(500).json({
             success: false,
-            error: 'Internal server error'
+            message: 'Internal server error'
         })
     }
 }
@@ -57,7 +57,7 @@ module.exports.editPost = async (req, res, next) => {
     const {error} = postValidation(editedPost)
     if(error) return res.status(400).json({
         success: false,
-        error: error.details[0].message
+        message: error.details[0].message
     })
 
     try {
@@ -68,7 +68,7 @@ module.exports.editPost = async (req, res, next) => {
 
         if(!editedPost) return res.status(401).json({
             success: false,
-            error: 'Post not found'
+            message: 'Post not found'
         })
 
         res.json({
@@ -80,7 +80,7 @@ module.exports.editPost = async (req, res, next) => {
     }catch (err) {
         res.status(500).json({
             success: false,
-            error: 'Internal server error'
+            message: 'Internal server error'
         })
     }
 
@@ -95,7 +95,7 @@ module.exports.deletePost = async(req, res, next) => {
 
         if(!deletedPost) return res.status(401).json({
             success: false,
-            error: 'Post not found'
+            message: 'Post not found'
         })
 
         res.json({
@@ -107,7 +107,7 @@ module.exports.deletePost = async(req, res, next) => {
     }catch(err) {
         res.status(500).json({
             success: false,
-            error: 'Internal server error'
+            message: 'Internal server error'
         })
     }
 }

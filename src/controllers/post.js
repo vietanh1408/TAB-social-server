@@ -15,7 +15,7 @@ module.exports.index = async (req, res, next) => {
     } catch (err) {
         res.status(500).json({
             success: false,
-            error: 'Internal server error'
+            message: 'Internal server error'
         })
     }
 
@@ -35,7 +35,7 @@ module.exports.getPostById = async (req, res, next) => {
     } catch (err) {
         res.status(500).json({
             success: false,
-            error: 'Internal server error'
+            message: 'Internal server error'
         })
     }
 }
@@ -48,7 +48,7 @@ module.exports.createPost = async (req, res, next) => {
     const { error } = postValidation(req.body)
     if (error) return res.status(400).json({
         success: false,
-        error: error.details[0].message
+        message: error.details[0].message
     })
 
     try {
@@ -74,7 +74,7 @@ module.exports.createPost = async (req, res, next) => {
     } catch (err) {
         res.status(500).json({
             success: false,
-            error: 'Internal server error'
+            message: 'Internal server error'
         })
     }
 }
