@@ -35,14 +35,16 @@ module.exports.register = async (req, res, next) => {
     const { error } = registerValidation(req.body)
     if (error) return res.status(400).json({
         success: false,
-        message: error.details[0].message
+        message: error.details[0].message,
+        body: req.body
     })
 
     // check email already exist
     const emailExist = await User.findOne({ email: req.body.email })
     if (emailExist) return res.status(400).json({
         success: false,
-        message: 'Email address already exists'
+        message: 'Email address already exists',
+        body: req.body
     })
 
     // hash password
@@ -54,7 +56,6 @@ module.exports.register = async (req, res, next) => {
         email: req.body.email,
         phone: req.body.phone,
         password: hashedPassword,
-        avatar: req.body.avatar,
     })
 
     try {
@@ -71,7 +72,8 @@ module.exports.register = async (req, res, next) => {
     } catch (err) {
         res.status(500).json({
             success: false,
-            message: "Internal server error"
+            message: "Internal server error",
+            body: req.body
         })
     }
 }
@@ -88,19 +90,20 @@ module.exports.login = async (req, res, next) => {
     })
 
     try {
-
         // check email login
         const user = await User.findOne({ email: req.body.email })
         if (!user) return res.status(400).json({
             success: false,
-            message: "Incorrect username or password"
+            message: "Incorrect username or password",
+            body: req.body
         })
 
         // check password
         const validPassword = await bcrypt.compare(req.body.password, user.password)
         if (!validPassword) return res.status(400).json({
             success: false,
-            message: "Password invalid!"
+            message: "Password invalid!",
+            body: req.body
         })
 
         //create and assign a token
