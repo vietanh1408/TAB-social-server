@@ -8,11 +8,24 @@ const cors = require('cors')
 const http = require('http').createServer(app)
 const io = require('socket.io')(http, {cors: {origin: "*"}})
 
+const usersOnline = []
+
 io.on('connection', socket => {
-    socket.on('message', (data) => {
-        io.sockets.emit('server-message', data)
+
+    console.log(socket.id, ' da ket noi')
+
+    // truyen thong tin user vao mang user online
+    socket.on('client-send-current-user', (data) => {
+        socket.Username = data
+        if(!usersOnline.includes(data)) {
+            usersOnline.push(data)
+            
+            // gui thong tin cac user dang online
+            io.sockets.emit('server-send-users-online-list', usersOnline)
+            console.log(usersOnline)
+        }
     })
-    console.log('Có người kết nối', socket.id)
+
     socket.on('disconnect', () => {
         console.log(socket.id, ' đã ngắt kết nối')
     })
