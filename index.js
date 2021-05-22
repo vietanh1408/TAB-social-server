@@ -5,6 +5,19 @@ const port = process.env.PORT || 4000
 const mongoose = require('mongoose')
 const cors = require('cors')
 
+const http = require('http').createServer(app)
+const io = require('socket.io')(http, {cors: {origin: "*"}})
+
+io.on('connection', socket => {
+    socket.on('message', (data) => {
+        io.sockets.emit('server-message', data)
+    })
+    console.log('Có người kết nối', socket.id)
+    socket.on('disconnect', () => {
+        console.log(socket.id, ' đã ngắt kết nối')
+    })
+})
+
 //import routes
 const authRoute = require('./src/routes/auth')
 const postRoute = require('./src/routes/post')
@@ -36,6 +49,6 @@ app.use('/api/auth', authRoute)
 app.use('/api/posts', postRoute)
 app.use('/api/user', userRoute)
 
-app.listen(port, () => {
+http.listen(port, () => {
     console.log(`Server start at http://localhost:${port}`)
 })
