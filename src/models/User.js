@@ -1,38 +1,69 @@
-const { Schema, model } = require('mongoose')
+const { Schema, model } = require("mongoose");
 
-const userSchema = new Schema({
+const UserSchema = new Schema(
+  {
     name: {
-        type: String,
-        required: true,
-        min: 6,
-        max: 255,
+      type: String,
+      required: true,
+      min: 6,
+      max: 255,
     },
     email: {
-        type: String,
-        required: true,
-        email: true,
+      type: String,
+      required: true,
+      email: true,
     },
     phone: {
-        type: String,
-        required: true,
-        min: 8,
-        max: 12,
+      type: String,
+      min: 8,
+      max: 12,
     },
     password: {
-        type: String,
-        required: true,
-        min: 6,
-        max: 255,
+      type: String,
+      required: true,
+      min: 6,
+      max: 255,
     },
     avatar: {
-        type: String
+      type: String,
+      default: "",
     },
-    createAt: {
-        type: Date,
-        default: Date.now
-    }
-}, {
-    versionKey: false
-})
+    background: {
+      type: String,
+      default: "",
+    },
+    followers: {
+      type: Array,
+      default: [],
+    },
+    followings: {
+      type: Array,
+      default: [],
+    },
+    description: {
+      type: String,
+      default: "",
+    },
+    city: {
+      type: String,
+      default: "",
+    },
+    from: {
+      type: String,
+      default: "",
+    },
+    relationShip: {
+      type: Number,
+      enum: [1, 2, 3],
+      default: 1,
+    },
+  },
+  {
+    versionKey: false,
+  },
+  {
+    timestamps: true,
+  }
+);
 
-module.exports = model('users', userSchema)
+module.exports = model("users", UserSchema);
