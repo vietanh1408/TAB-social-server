@@ -32,6 +32,10 @@ const UserSchema = new Schema(
       type: String,
       default: "",
     },
+    friends: {
+      type: Array,
+      default: [],
+    },
     followers: {
       type: Array,
       default: [],
@@ -56,6 +60,14 @@ const UserSchema = new Schema(
       type: Number,
       enum: [1, 2, 3],
       default: 1,
+    },
+    sendFriendRequests: {
+      type: Array,
+      default: [],
+    },
+    friendRequests: {
+      type: Array,
+      default: [],
     },
   },
   {

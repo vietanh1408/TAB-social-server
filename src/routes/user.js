@@ -6,16 +6,14 @@ const verifyToken = require("../middlewares/auth");
 // check match password
 router.post("/check-password", verifyToken, controller.checkPassword);
 
+// POST api/user/addfriend/:id => send add friend request
+router.post("/send-friend-request", verifyToken, controller.sendFriendRequest);
+
 router.put("/edit/:id", verifyToken, controller.editProfile);
 
 router.get("/:id", verifyToken, controller.getUserProfile);
+
 // GET api/user/posts => get your posts (access public)
 router.get("/posts", verifyToken, controller.getOwnPost);
-
-// router.get("/posts/:id", verifyToken, controller.getPostById);
-
-// router.put("/posts/:id", verifyToken, controller.editPost);
-
-// router.delete("/posts/:id", verifyToken, controller.deletePost);
 
 module.exports = router;

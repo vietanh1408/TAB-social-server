@@ -1,7 +1,9 @@
 const Post = require("../models/Post");
 const postValidation = require("../validations/post.create");
 const ObjectId = require("mongodb").ObjectID;
+const ServerFail = require("../constants/request");
 
+// get all post
 module.exports.index = async (req, res) => {
   try {
     const posts = await Post.find()
@@ -13,13 +15,11 @@ module.exports.index = async (req, res) => {
       posts: posts,
     });
   } catch (err) {
-    return res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
+    ServerFail();
   }
 };
 
+// get post by id
 module.exports.getPostById = async (req, res) => {
   try {
     const id = ObjectId(req.params.id);
@@ -33,13 +33,11 @@ module.exports.getPostById = async (req, res) => {
       post: post,
     });
   } catch (err) {
-    return res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
+    ServerFail();
   }
 };
 
+// create post
 module.exports.createPost = async (req, res) => {
   const { description, image } = req.body;
 
@@ -66,10 +64,7 @@ module.exports.createPost = async (req, res) => {
       post: newPost,
     });
   } catch (err) {
-    return res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
+    ServerFail();
   }
 };
 
@@ -105,10 +100,7 @@ module.exports.editPost = async (req, res) => {
       });
     }
   } catch (err) {
-    return res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
+    ServerFail();
   }
 };
 
@@ -144,9 +136,6 @@ module.exports.deletePost = async (req, res) => {
       });
     }
   } catch (err) {
-    return res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
+    ServerFail();
   }
 };

@@ -3,6 +3,7 @@ const User = require("../models/User");
 const ObjectId = require("mongodb").ObjectID;
 const bcrypt = require("bcryptjs");
 const postValidation = require("../validations/post.create");
+const ServerFail = require("../constants/request");
 
 // get all user
 module.exports.getUserProfile = async (req, res, next) => {
@@ -15,10 +16,7 @@ module.exports.getUserProfile = async (req, res, next) => {
       profile: profile,
     });
   } catch (err) {
-    return res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
+    ServerFail();
   }
 };
 
@@ -35,10 +33,7 @@ module.exports.getOwnPost = async (req, res, next) => {
       posts: myPosts,
     });
   } catch (err) {
-    return res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
+    ServerFail();
   }
 };
 
@@ -54,10 +49,7 @@ module.exports.getPostById = async (req, res, next) => {
       post: post,
     });
   } catch (err) {
-    return res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
+    ServerFail();
   }
 };
 
@@ -98,10 +90,7 @@ module.exports.editPost = async (req, res, next) => {
       post: editedPost,
     });
   } catch (err) {
-    return res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
+    ServerFail();
   }
 };
 
@@ -122,10 +111,7 @@ module.exports.deletePost = async (req, res, next) => {
       post: deletedPost,
     });
   } catch (err) {
-    return res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
+    ServerFail();
   }
 };
 
@@ -181,9 +167,45 @@ module.exports.checkPassword = async (req, res) => {
       });
     }
   } catch (err) {
-    return res.status(500).json({
-      success: false,
-      message: "Internal server error",
+    ServerFail();
+  }
+};
+
+// send add friend request
+module.exports.sendFriendRequest = async (req, res) => {
+  try {
+    const profile = await User.findById(req.userId);
+    const friend = await User.findById(req.body.friendId);
+
+    if (!profile || !friend) {
+      return res.status(400).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // add to DB
+    if (profile.sendFriendRequests.includes(req.body.friendId)) {
+      return res.status(400).json({
+        success: false,
+        message: "You have already send friend request",
+      });
+    } else {
+      await User.findByIdAndUpdate(req.userId, {
+        $push: { sendFriendRequests: req.body.friendId },
+      });
+    }
+
+    // send friend request to friend
+    await User.findByIdAndUpdate(req.body.friendId, {
+      $push: { friendRequests: req.userId },
     });
+
+    return res.status(200).json({
+      success: true,
+      message: "Send Friend Request successfully",
+    });
+  } catch (err) {
+    ServerFail();
   }
 };

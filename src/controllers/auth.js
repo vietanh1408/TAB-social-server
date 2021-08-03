@@ -4,6 +4,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const registerValidation = require("../validations/auth.register");
 const loginValidation = require("../validations/auth.login");
+const { ServerFail } = require("../constants/request");
 
 //  check authenticated
 module.exports.checkAuth = async (req, res) => {
@@ -21,10 +22,7 @@ module.exports.checkAuth = async (req, res) => {
       user: user,
     });
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
+    ServerFail();
   }
 };
 
@@ -124,9 +122,6 @@ module.exports.login = async (req, res) => {
       accessToken,
     });
   } catch (err) {
-    return res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
+    ServerFail();
   }
 };
