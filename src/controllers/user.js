@@ -3,10 +3,10 @@ const User = require("../models/User");
 const ObjectId = require("mongodb").ObjectID;
 const bcrypt = require("bcryptjs");
 const postValidation = require("../validations/post.create");
-const ServerFail = require("../constants/request");
+const { ServerFail } = require("../constants/request");
 
 // get all user
-module.exports.getUserProfile = async (req, res, next) => {
+module.exports.getUserProfile = async (req, res) => {
   try {
     const profile = await User.findOne({ _id: req.params.id });
 
@@ -20,7 +20,7 @@ module.exports.getUserProfile = async (req, res, next) => {
   }
 };
 
-module.exports.getOwnPost = async (req, res, next) => {
+module.exports.getOwnPost = async (req, res) => {
   try {
     const myPosts = await Post.find({ user: req.userId }).populate("user", [
       "name",
@@ -124,7 +124,7 @@ module.exports.getFriendRequest = async (req, res) => {
 
     const { friendRequests } = await User.findOne(
       {
-        _id: new ObjectId(req.userId),
+        _id: ObjectId(req.userId),
       },
       { friendRequests: { $slice: [skip, pageSize] } }
     );
@@ -235,4 +235,32 @@ module.exports.sendFriendRequest = async (req, res) => {
 };
 
 // accept friend request
-module.exports.acceptFriendRequest = async (req, res) => {};
+module.exports.acceptFriendRequest = async (req, res) => {
+  try {
+    // // check correct friend request
+    // const isFriendRequest = await User.
+
+    // delete in friendRequest and add to friends
+    await User.updateOne(
+      { _id: ObjectId(req.userId) },
+      {
+        $addToSet: {
+          friends: req.body.friendId,
+          followings: req.body.friendId,
+          followers: req.body.friendId,
+        },
+        $pull: { friendRequests: req.body.friendId },
+      }
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "add friend successfully",
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: true,
+      message: "Internal",
+    });
+  }
+};
