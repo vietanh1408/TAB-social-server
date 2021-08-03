@@ -6,7 +6,7 @@ const registerValidation = require("../validations/auth.register");
 const loginValidation = require("../validations/auth.login");
 
 //  check authenticated
-module.exports.checkAuth = async (req, res, next) => {
+module.exports.checkAuth = async (req, res) => {
   try {
     const user = await User.findById(req.userId);
     if (!user) {
@@ -29,7 +29,7 @@ module.exports.checkAuth = async (req, res, next) => {
 };
 
 // REGISTER
-module.exports.register = async (req, res, next) => {
+module.exports.register = async (req, res) => {
   // validate register
   const { error } = registerValidation(req.body);
   if (error)
@@ -82,8 +82,7 @@ module.exports.register = async (req, res, next) => {
 };
 
 // LOGIN
-
-module.exports.login = async (req, res, next) => {
+module.exports.login = async (req, res) => {
   // validate login
   const { error } = loginValidation(req.body);
   if (error)

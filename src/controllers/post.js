@@ -2,7 +2,7 @@ const Post = require("../models/Post");
 const postValidation = require("../validations/post.create");
 const ObjectId = require("mongodb").ObjectID;
 
-module.exports.index = async (req, res, next) => {
+module.exports.index = async (req, res) => {
   try {
     const posts = await Post.find()
       .populate("user", ["name", "avatar"])
@@ -20,7 +20,7 @@ module.exports.index = async (req, res, next) => {
   }
 };
 
-module.exports.getPostById = async (req, res, next) => {
+module.exports.getPostById = async (req, res) => {
   try {
     const id = ObjectId(req.params.id);
     const post = await Post.findOne({ _id: id }).populate("user", [
@@ -40,7 +40,7 @@ module.exports.getPostById = async (req, res, next) => {
   }
 };
 
-module.exports.createPost = async (req, res, next) => {
+module.exports.createPost = async (req, res) => {
   const { description, image } = req.body;
 
   // validate create post
@@ -73,4 +73,80 @@ module.exports.createPost = async (req, res, next) => {
   }
 };
 
-module.exports.editPost = async (req, res) => {};
+// edit post
+module.exports.editPost = async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id);
+
+    if (!post) {
+      return res.status(400).json({
+        success: false,
+        message: "Post not found",
+      });
+    }
+    // check own post
+    if (post.userId === req.userId) {
+      try {
+        await Post.findByIdAndUpdate(req.params.id, { $set: req.body });
+        return res.status(200).json({
+          success: true,
+          message: "Update post successfully",
+        });
+      } catch (err) {
+        return res.status(500).json({
+          success: false,
+          message: "Internal server error",
+        });
+      }
+    } else {
+      return res.status(400).json({
+        success: false,
+        message: "You only can edit your post",
+      });
+    }
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+// delete post
+module.exports.deletePost = async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id);
+
+    if (!post) {
+      return res.status(400).json({
+        success: false,
+        message: "Post not found",
+      });
+    }
+    // check own post
+    if (post.userId === req.userId) {
+      try {
+        await Post.findByIdAndDelete(req.params.id);
+        return res.status(200).json({
+          success: true,
+          message: "Delete post successfully",
+        });
+      } catch (err) {
+        return res.status(500).json({
+          success: false,
+          message: "Internal server error",
+        });
+      }
+    } else {
+      return res.status(400).json({
+        success: false,
+        message: "You only can edit your post",
+      });
+    }
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};

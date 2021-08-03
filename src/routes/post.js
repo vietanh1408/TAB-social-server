@@ -9,8 +9,11 @@ router.get("/", verifyToken, controller.index);
 router.post("/create", verifyToken, controller.createPost);
 
 // PUT api/posts/edit/:id
-
 router.put("/edit/:id", verifyToken, controller.editPost);
+
+// DELETE api/posts/delete/:id
+router.delete("/delete/:id", verifyToken, controller.deletePost);
+
 // GET api/post/:id => get one post(private access token)
 router.get("/:id", verifyToken, controller.getPostById);
 
