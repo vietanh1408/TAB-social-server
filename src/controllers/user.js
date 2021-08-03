@@ -37,7 +37,7 @@ module.exports.getOwnPost = async (req, res, next) => {
   }
 };
 
-module.exports.getPostById = async (req, res, next) => {
+module.exports.getPostById = async (req, res) => {
   try {
     const id = ObjectId(req.params.id);
 
@@ -53,7 +53,7 @@ module.exports.getPostById = async (req, res, next) => {
   }
 };
 
-module.exports.editPost = async (req, res, next) => {
+module.exports.editPost = async (req, res) => {
   const { title, description, image, status, reaction, comment } = req.body;
 
   let editedPost = {
@@ -94,7 +94,7 @@ module.exports.editPost = async (req, res, next) => {
   }
 };
 
-module.exports.deletePost = async (req, res, next) => {
+module.exports.deletePost = async (req, res) => {
   try {
     const condition = { _id: req.params.id, user: req.userId };
     const deletedPost = await Post.findOneAndDelete(condition);
@@ -109,6 +109,30 @@ module.exports.deletePost = async (req, res, next) => {
       success: true,
       message: "Delete post successfully",
       post: deletedPost,
+    });
+  } catch (err) {
+    ServerFail();
+  }
+};
+
+// get friend Request
+module.exports.getFriendRequest = async (req, res) => {
+  try {
+    const pageIndex = Number(req.body.pageIndex || 0);
+    const pageSize = Number(req.body.pageSize || 12);
+    const skip = (pageIndex - 1) * pageSize;
+
+    const { friendRequests } = await User.findOne(
+      {
+        _id: new ObjectId(req.userId),
+      },
+      { friendRequests: { $slice: [skip, pageSize] } }
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "get friend request successfully",
+      friendRequests: friendRequests,
     });
   } catch (err) {
     ServerFail();
@@ -209,3 +233,6 @@ module.exports.sendFriendRequest = async (req, res) => {
     ServerFail();
   }
 };
+
+// accept friend request
+module.exports.acceptFriendRequest = async (req, res) => {};
