@@ -27,6 +27,12 @@ module.exports.getPostById = async (req, res) => {
       "name",
       "avatar",
     ]);
+    if (!post) {
+      return res.status(400).json({
+        success: false,
+        message: "Post not found",
+      });
+    }
     return res.status(200).json({
       success: true,
       message: "get post by id successfully",

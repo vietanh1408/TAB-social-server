@@ -12,12 +12,15 @@ router.get("/friend-request", verifyToken, controller.getFriendRequest);
 // POST api/user/addfriend/:id => send add friend request
 router.post("/send-friend-request", verifyToken, controller.sendFriendRequest);
 
-//accept friend request
+// accept friend request
 router.put(
   "/accept-friend-request",
   verifyToken,
   controller.acceptFriendRequest
 );
+
+// get all friend
+router.get("/friends", verifyToken, controller.getAllFriend);
 
 // eidt profile
 router.put("/edit/:id", verifyToken, controller.editProfile);

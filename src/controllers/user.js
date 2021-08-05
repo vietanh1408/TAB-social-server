@@ -2,7 +2,6 @@ const Post = require("../models/Post");
 const User = require("../models/User");
 const ObjectId = require("mongodb").ObjectID;
 const bcrypt = require("bcryptjs");
-const postValidation = require("../validations/post.create");
 const { ServerFail } = require("../constants/request");
 
 // get all user
@@ -37,84 +36,6 @@ module.exports.getOwnPost = async (req, res) => {
   }
 };
 
-module.exports.getPostById = async (req, res) => {
-  try {
-    const id = ObjectId(req.params.id);
-
-    const post = await Post.findOne({ _id: id });
-
-    return res.status(200).json({
-      success: true,
-      message: "get post successfully",
-      post: post,
-    });
-  } catch (err) {
-    ServerFail();
-  }
-};
-
-module.exports.editPost = async (req, res) => {
-  const { title, description, image, status, reaction, comment } = req.body;
-
-  let editedPost = {
-    title,
-    description,
-    image,
-    status,
-    reaction,
-    comment,
-  };
-  const { error } = postValidation(editedPost);
-  if (error)
-    return res.status(400).json({
-      success: false,
-      message: error.details[0].message,
-    });
-
-  try {
-    const condition = { _id: req.params.id, user: req.userId };
-
-    editedPost = await Post.findOneAndUpdate(condition, editedPost, {
-      new: true,
-    });
-
-    if (!editedPost)
-      return res.status(401).json({
-        success: false,
-        message: "Post not found",
-      });
-
-    return res.status(200).json({
-      success: true,
-      message: "Edit post successfully",
-      post: editedPost,
-    });
-  } catch (err) {
-    ServerFail();
-  }
-};
-
-module.exports.deletePost = async (req, res) => {
-  try {
-    const condition = { _id: req.params.id, user: req.userId };
-    const deletedPost = await Post.findOneAndDelete(condition);
-
-    if (!deletedPost)
-      return res.status(401).json({
-        success: false,
-        message: "Post not found",
-      });
-
-    return res.status(200).json({
-      success: true,
-      message: "Delete post successfully",
-      post: deletedPost,
-    });
-  } catch (err) {
-    ServerFail();
-  }
-};
-
 // get friend Request
 module.exports.getFriendRequest = async (req, res) => {
   try {
@@ -133,6 +54,21 @@ module.exports.getFriendRequest = async (req, res) => {
       success: true,
       message: "get friend request successfully",
       friendRequests: friendRequests,
+    });
+  } catch (err) {
+    ServerFail();
+  }
+};
+
+// get all friend
+module.exports.getAllFriend = async (req, res) => {
+  try {
+    const { friends } = await User.findById(req.userId);
+
+    return res.status(200).json({
+      success: true,
+      message: "Get all friend successfully",
+      friends,
     });
   } catch (err) {
     ServerFail();
@@ -198,6 +134,12 @@ module.exports.checkPassword = async (req, res) => {
 // send add friend request
 module.exports.sendFriendRequest = async (req, res) => {
   try {
+    if (req.userId === req.body.friendId) {
+      return res.status(400).json({
+        success: false,
+        message: "You cant send friend request your self",
+      });
+    }
     const profile = await User.findById(req.userId);
     const friend = await User.findById(req.body.friendId);
 
@@ -237,9 +179,6 @@ module.exports.sendFriendRequest = async (req, res) => {
 // accept friend request
 module.exports.acceptFriendRequest = async (req, res) => {
   try {
-    // // check correct friend request
-    // const isFriendRequest = await User.
-
     // delete in friendRequest and add to friends
     await User.updateOne(
       { _id: ObjectId(req.userId) },
@@ -258,9 +197,6 @@ module.exports.acceptFriendRequest = async (req, res) => {
       message: "add friend successfully",
     });
   } catch (err) {
-    return res.status(500).json({
-      success: true,
-      message: "Internal",
-    });
+    ServerFail();
   }
 };

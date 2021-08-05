@@ -69,6 +69,14 @@ const UserSchema = new Schema(
       type: Array,
       default: [],
     },
+    blockUsers: {
+      type: Array,
+      default: [],
+    },
+    createdAt: {
+      type: Date,
+      default: Date.now(),
+    },
   },
   {
     versionKey: false,

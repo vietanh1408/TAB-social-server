@@ -2,7 +2,6 @@ require("dotenv").config();
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const registerValidation = require("../validations/auth.register");
 const loginValidation = require("../validations/auth.login");
 const { ServerFail } = require("../constants/request");
 
@@ -28,21 +27,20 @@ module.exports.checkAuth = async (req, res) => {
 
 // REGISTER
 module.exports.register = async (req, res) => {
-  // validate register
-  const { error } = registerValidation(req.body);
-  if (error)
-    return res.status(400).json({
-      success: false,
-      message: error.details[0].message,
-      body: req.body,
-    });
-
   // check email already exist
   const emailExist = await User.findOne({ email: req.body.email });
   if (emailExist)
     return res.status(400).json({
       success: false,
       message: "Email address already exists",
+      body: req.body,
+    });
+  // check phone number
+  const phoneExist = await User.findOne({ phone: req.body.phone });
+  if (phoneExist)
+    return res.status(400).json({
+      success: false,
+      message: "phone number already used",
       body: req.body,
     });
 
