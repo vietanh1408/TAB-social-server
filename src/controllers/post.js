@@ -1,7 +1,7 @@
 const Post = require("../models/Post");
 const postValidation = require("../validations/post.create");
 const ObjectId = require("mongodb").ObjectID;
-const ServerFail = require("../constants/request");
+const ServerError = require("../constants/request");
 
 // get all post
 module.exports.index = async (req, res) => {
@@ -15,7 +15,7 @@ module.exports.index = async (req, res) => {
       posts: posts,
     });
   } catch (err) {
-    ServerFail();
+    ServerError();
   }
 };
 
@@ -39,7 +39,7 @@ module.exports.getPostById = async (req, res) => {
       post: post,
     });
   } catch (err) {
-    ServerFail();
+    ServerError();
   }
 };
 
@@ -70,7 +70,7 @@ module.exports.createPost = async (req, res) => {
       post: newPost,
     });
   } catch (err) {
-    ServerFail();
+    ServerError();
   }
 };
 
@@ -106,7 +106,7 @@ module.exports.editPost = async (req, res) => {
       });
     }
   } catch (err) {
-    ServerFail();
+    ServerError();
   }
 };
 
@@ -142,6 +142,6 @@ module.exports.deletePost = async (req, res) => {
       });
     }
   } catch (err) {
-    ServerFail();
+    ServerError();
   }
 };

@@ -2,7 +2,7 @@ const Post = require("../models/Post");
 const User = require("../models/User");
 const ObjectId = require("mongodb").ObjectID;
 const bcrypt = require("bcryptjs");
-const { ServerFail } = require("../constants/request");
+const { ServerError } = require("../constants/request");
 
 // get all user
 module.exports.getUserProfile = async (req, res) => {
@@ -15,7 +15,7 @@ module.exports.getUserProfile = async (req, res) => {
       profile: profile,
     });
   } catch (err) {
-    ServerFail();
+    ServerError();
   }
 };
 
@@ -32,7 +32,7 @@ module.exports.getOwnPost = async (req, res) => {
       posts: myPosts,
     });
   } catch (err) {
-    ServerFail();
+    ServerError();
   }
 };
 
@@ -56,7 +56,7 @@ module.exports.getFriendRequest = async (req, res) => {
       friendRequests: friendRequests,
     });
   } catch (err) {
-    ServerFail();
+    ServerError();
   }
 };
 
@@ -71,7 +71,7 @@ module.exports.getAllFriend = async (req, res) => {
       friends,
     });
   } catch (err) {
-    ServerFail();
+    ServerError();
   }
 };
 
@@ -127,7 +127,7 @@ module.exports.checkPassword = async (req, res) => {
       });
     }
   } catch (err) {
-    ServerFail();
+    ServerError();
   }
 };
 
@@ -172,7 +172,7 @@ module.exports.sendFriendRequest = async (req, res) => {
       message: "Send Friend Request successfully",
     });
   } catch (err) {
-    ServerFail();
+    ServerError();
   }
 };
 
@@ -197,6 +197,24 @@ module.exports.acceptFriendRequest = async (req, res) => {
       message: "add friend successfully",
     });
   } catch (err) {
-    ServerFail();
+    ServerError();
+  }
+};
+
+// unfriend
+module.exports.unFriend = async (req, res) => {
+  try {
+    await User.updateOne(
+      { _id: ObjectId(req.userId) },
+      {
+        $pull: { friends: req.body.friendId },
+      }
+    );
+    return res.status(200).json({
+      success: true,
+      message: "unfriend successfully",
+    });
+  } catch (err) {
+    ServerError();
   }
 };

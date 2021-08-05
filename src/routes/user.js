@@ -22,6 +22,9 @@ router.put(
 // get all friend
 router.get("/friends", verifyToken, controller.getAllFriend);
 
+// unfriend
+router.delete("/unfriend", verifyToken, controller.unFriend);
+
 // eidt profile
 router.put("/edit/:id", verifyToken, controller.editProfile);
 

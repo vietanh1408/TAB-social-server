@@ -3,7 +3,7 @@ const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const loginValidation = require("../validations/auth.login");
-const { ServerFail } = require("../constants/request");
+const { ServerError } = require("../constants/request");
 
 //  check authenticated
 module.exports.checkAuth = async (req, res) => {
@@ -21,7 +21,7 @@ module.exports.checkAuth = async (req, res) => {
       user: user,
     });
   } catch (error) {
-    ServerFail();
+    ServerError();
   }
 };
 
@@ -120,6 +120,6 @@ module.exports.login = async (req, res) => {
       accessToken,
     });
   } catch (err) {
-    ServerFail();
+    ServerError();
   }
 };
