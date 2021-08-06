@@ -81,7 +81,7 @@ module.exports.editProfile = async (req, res) => {
   if (req.userId !== req.params.id) {
     return res.status(403).json({
       success: false,
-      message: "You only can edit your post",
+      message: "You only can edit your profile",
     });
   } else {
     try {

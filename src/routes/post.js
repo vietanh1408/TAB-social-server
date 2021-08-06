@@ -9,6 +9,12 @@ router.get("/", verifyToken, controller.index);
 // POST api/post/create => create a post (private access token)
 router.post("/create", verifyToken, controller.createPost);
 
+// like a post
+router.post("/like", verifyToken, controller.likeAPost);
+
+// dislike a post
+router.delete("/dislike", verifyToken, controller.dislikeAPost);
+
 // PUT api/posts/edit/:id
 router.put("/edit/:id", verifyToken, controller.editPost);
 

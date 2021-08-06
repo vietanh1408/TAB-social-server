@@ -145,3 +145,47 @@ module.exports.deletePost = async (req, res) => {
     ServerError();
   }
 };
+
+// like a post
+module.exports.likeAPost = async (req, res) => {
+  try {
+    await Post.updateOne(
+      {
+        _id: ObjectId(req.body.postId),
+      },
+      {
+        $addToSet: {
+          likes: req.userId,
+        },
+      }
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Like this post successfully",
+    });
+  } catch (err) {
+    ServerError();
+  }
+};
+
+// dislike a post
+module.exports.dislikeAPost = async (req, res) => {
+  try {
+    await Post.updateOne(
+      {
+        _id: ObjectId(req.body.postId),
+      },
+      {
+        $pull: { likes: req.userId },
+      }
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "dislike this post successfully",
+    });
+  } catch (err) {
+    ServerError();
+  }
+};
