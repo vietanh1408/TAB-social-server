@@ -2,7 +2,6 @@ const Post = require("../models/Post");
 const User = require("../models/User");
 const ObjectId = require("mongodb").ObjectID;
 const bcrypt = require("bcryptjs");
-const { ServerError } = require("../constants/request");
 
 // get all user
 module.exports.getUserProfile = async (req, res) => {
@@ -15,7 +14,10 @@ module.exports.getUserProfile = async (req, res) => {
       profile: profile,
     });
   } catch (err) {
-    ServerError();
+    return res.status(500).json({
+      success: false,
+      message: "server error",
+    });
   }
 };
 
@@ -32,7 +34,10 @@ module.exports.getOwnPost = async (req, res) => {
       posts: myPosts,
     });
   } catch (err) {
-    ServerError();
+    return res.status(500).json({
+      success: false,
+      message: "server error",
+    });
   }
 };
 
@@ -56,7 +61,10 @@ module.exports.getFriendRequest = async (req, res) => {
       friendRequests: friendRequests,
     });
   } catch (err) {
-    ServerError();
+    return res.status(500).json({
+      success: false,
+      message: "server error",
+    });
   }
 };
 
@@ -71,7 +79,10 @@ module.exports.getAllFriend = async (req, res) => {
       friends,
     });
   } catch (err) {
-    ServerError();
+    return res.status(500).json({
+      success: false,
+      message: "server error",
+    });
   }
 };
 
@@ -127,7 +138,10 @@ module.exports.checkPassword = async (req, res) => {
       });
     }
   } catch (err) {
-    ServerError();
+    return res.status(500).json({
+      success: false,
+      message: "server error",
+    });
   }
 };
 
@@ -172,7 +186,10 @@ module.exports.sendFriendRequest = async (req, res) => {
       message: "Send Friend Request successfully",
     });
   } catch (err) {
-    ServerError();
+    return res.status(500).json({
+      success: false,
+      message: "server error",
+    });
   }
 };
 
@@ -197,7 +214,10 @@ module.exports.acceptFriendRequest = async (req, res) => {
       message: "add friend successfully",
     });
   } catch (err) {
-    ServerError();
+    return res.status(500).json({
+      success: false,
+      message: "server error",
+    });
   }
 };
 
@@ -215,6 +235,9 @@ module.exports.unFriend = async (req, res) => {
       message: "unfriend successfully",
     });
   } catch (err) {
-    ServerError();
+    return res.status(500).json({
+      success: false,
+      message: "server error",
+    });
   }
 };

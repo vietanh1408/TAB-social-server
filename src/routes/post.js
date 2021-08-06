@@ -15,6 +15,12 @@ router.post("/like", verifyToken, controller.likeAPost);
 // dislike a post
 router.delete("/dislike", verifyToken, controller.dislikeAPost);
 
+// comment a post
+router.post("/comment", verifyToken, controller.commentAPost);
+
+// delete a comment
+router.delete("/remove-comment", verifyToken, controller.removeComment);
+
 // PUT api/posts/edit/:id
 router.put("/edit/:id", verifyToken, controller.editPost);
 

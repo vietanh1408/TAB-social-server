@@ -1,5 +1,15 @@
 const { Schema, model } = require("mongoose");
 
+const CommentSchema = new Schema({
+  friendId: {
+    type: String,
+    required: true,
+  },
+  desc: {
+    type: String,
+  },
+});
+
 const PostSchema = new Schema(
   {
     userId: {
@@ -21,14 +31,17 @@ const PostSchema = new Schema(
       default: [],
     },
     comments: {
-      type: Array,
+      type: [CommentSchema],
       default: [],
+    },
+    createdAt: {
+      type: Date,
+      default: Date.now(),
     },
   },
   {
     versionKey: false,
-  },
-  { timestamps: true }
+  }
 );
 
 module.exports = model("posts", PostSchema);

@@ -1,7 +1,6 @@
 const Post = require("../models/Post");
 const postValidation = require("../validations/post.create");
 const ObjectId = require("mongodb").ObjectID;
-const ServerError = require("../constants/request");
 
 // get all post
 module.exports.index = async (req, res) => {
@@ -15,7 +14,10 @@ module.exports.index = async (req, res) => {
       posts: posts,
     });
   } catch (err) {
-    ServerError();
+    return res.status(500).json({
+      success: false,
+      message: "server error",
+    });
   }
 };
 
@@ -39,7 +41,10 @@ module.exports.getPostById = async (req, res) => {
       post: post,
     });
   } catch (err) {
-    ServerError();
+    return res.status(500).json({
+      success: false,
+      message: "server error",
+    });
   }
 };
 
@@ -70,7 +75,10 @@ module.exports.createPost = async (req, res) => {
       post: newPost,
     });
   } catch (err) {
-    ServerError();
+    return res.status(500).json({
+      success: false,
+      message: "server error",
+    });
   }
 };
 
@@ -106,7 +114,10 @@ module.exports.editPost = async (req, res) => {
       });
     }
   } catch (err) {
-    ServerError();
+    return res.status(500).json({
+      success: false,
+      message: "server error",
+    });
   }
 };
 
@@ -142,7 +153,10 @@ module.exports.deletePost = async (req, res) => {
       });
     }
   } catch (err) {
-    ServerError();
+    return res.status(500).json({
+      success: false,
+      message: "server error",
+    });
   }
 };
 
@@ -165,7 +179,10 @@ module.exports.likeAPost = async (req, res) => {
       message: "Like this post successfully",
     });
   } catch (err) {
-    ServerError();
+    return res.status(500).json({
+      success: false,
+      message: "server error",
+    });
   }
 };
 
@@ -186,6 +203,78 @@ module.exports.dislikeAPost = async (req, res) => {
       message: "dislike this post successfully",
     });
   } catch (err) {
-    ServerError();
+    return res.status(500).json({
+      success: false,
+      message: "server error",
+    });
+  }
+};
+
+// comment a post
+module.exports.commentAPost = async (req, res) => {
+  try {
+    await Post.updateMany(
+      { _id: ObjectId(req.body.postId) },
+      {
+        $push: {
+          comments: {
+            friendId: req.userId,
+            desc: req.body.comment,
+          },
+        },
+      }
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "comment this post successfully",
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: "server error",
+    });
+  }
+};
+
+// remove comment
+module.exports.removeComment = async (req, res) => {
+  try {
+    // check own comment ( chi ban hoac tac gia bai viet moi co the xoa comment)
+    const { comments, userId } = await Post.findById(req.body.postId);
+
+    const checkOwnerComment = comments.some(
+      (comment) => comment.friendId === req.userId
+    );
+    const checkAuthor = userId === req.userId ? true : false;
+
+    if (checkAuthor || checkOwnerComment) {
+      await Post.updateMany(
+        { _id: ObjectId(req.body.postId) },
+        {
+          $pull: {
+            comments: {
+              _id: req.body.commentId,
+            },
+          },
+        }
+      );
+
+      return res.status(200).json({
+        success: true,
+        message: "remove comment this post successfully",
+      });
+    } else {
+      // neu k phai chu bai viet hoac chu comment => k dc xoa comment
+      return res.status(400).json({
+        success: false,
+        message: "You cant remove other's comment",
+      });
+    }
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: "server error",
+    });
   }
 };

@@ -3,7 +3,6 @@ const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const loginValidation = require("../validations/auth.login");
-const { ServerError } = require("../constants/request");
 
 //  check authenticated
 module.exports.checkAuth = async (req, res) => {
@@ -21,7 +20,10 @@ module.exports.checkAuth = async (req, res) => {
       user: user,
     });
   } catch (error) {
-    ServerError();
+    return res.status(500).json({
+      success: false,
+      message: "server error",
+    });
   }
 };
 
@@ -120,6 +122,9 @@ module.exports.login = async (req, res) => {
       accessToken,
     });
   } catch (err) {
-    ServerError();
+    return res.status(500).json({
+      success: false,
+      message: "server error",
+    });
   }
 };
