@@ -5,7 +5,7 @@ const port = process.env.PORT || 4000;
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const fileUpload = require("express-fileupload");
-const { connectDB } = require("./src/utils/mongodb");
+const { connectDB } = require("./utils/mongodb");
 
 const http = require("http").createServer(app);
 const io = require("socket.io")(http, { cors: { origin: "*" } });
@@ -35,10 +35,10 @@ io.on("connection", (socket) => {
 });
 
 //import routes
-const authRoute = require("./src/routes/auth");
-const postRoute = require("./src/routes/post");
-const userRoute = require("./src/routes/user");
-const uploadRoute = require("./src/routes/upload");
+const authRoute = require("./routes/auth");
+const postRoute = require("./routes/post");
+const userRoute = require("./routes/user");
+const uploadRoute = require("./routes/upload");
 
 app.use(express.json());
 app.use(bodyParser.json());
