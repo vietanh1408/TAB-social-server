@@ -197,7 +197,7 @@ module.exports.sendFriendRequest = async (req, res) => {
 module.exports.acceptFriendRequest = async (req, res) => {
   try {
     // delete in friendRequest and add to friends
-    await User.updateOne(
+    await User.updateMany(
       { _id: ObjectId(req.userId) },
       {
         $addToSet: {
@@ -206,6 +206,19 @@ module.exports.acceptFriendRequest = async (req, res) => {
           followers: req.body.friendId,
         },
         $pull: { friendRequests: req.body.friendId },
+      }
+    );
+
+    // add friends
+    await User.updateMany(
+      { _id: ObjectId(req.body.friendId) },
+      {
+        $addToSet: {
+          friends: req.userId,
+          followings: req.userId,
+          followers: req.userId,
+        },
+        $pull: { sendFriendRequests: req.userId },
       }
     );
 
@@ -224,10 +237,24 @@ module.exports.acceptFriendRequest = async (req, res) => {
 // unfriend
 module.exports.unFriend = async (req, res) => {
   try {
-    await User.updateOne(
+    await User.updateMany(
       { _id: ObjectId(req.userId) },
       {
-        $pull: { friends: req.body.friendId },
+        $pull: {
+          friends: req.body.friendId,
+          followers: req.body.friendId,
+          followings: req.body.friendId,
+        },
+      }
+    );
+    await User.updateMany(
+      { _id: ObjectId(req.body.friendId) },
+      {
+        $pull: {
+          friends: req.userId,
+          followers: req.userId,
+          followings: req.userId,
+        },
       }
     );
     return res.status(200).json({
