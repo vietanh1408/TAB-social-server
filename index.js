@@ -2,16 +2,15 @@ require("dotenv").config();
 const express = require("express");
 const app = express();
 const port = process.env.PORT || 4000;
-const mongoose = require("mongoose");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const fileUpload = require("express-fileupload");
+const { connectDB } = require("./src/utils/mongodb");
 
 const http = require("http").createServer(app);
 const io = require("socket.io")(http, { cors: { origin: "*" } });
 
 const usersOnline = [];
-
 io.on("connection", (socket) => {
   console.log(socket.id, " da ket noi");
 
@@ -59,19 +58,6 @@ app.use("/api/user", userRoute);
 app.use("/api/", uploadRoute);
 
 // connect mongoDB
-const connectDB = async () => {
-  try {
-    await mongoose.connect(process.env.DB, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      useCreateIndex: true,
-      useFindAndModify: false,
-    });
-    console.log("connected database !");
-  } catch (err) {
-    console.log("connect database fail !");
-  }
-};
 connectDB();
 
 http.listen(port, () => {
