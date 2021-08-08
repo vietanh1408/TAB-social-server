@@ -21,7 +21,6 @@ io.on("connection", (socket) => {
     if (!usersOnline.includes(data)) {
       usersOnline.push(data);
     }
-
     // gui thong tin cac user dang online
     io.sockets.emit("server-send-users-online-list", usersOnline);
     console.log(usersOnline);

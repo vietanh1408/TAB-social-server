@@ -56,10 +56,10 @@ const UserSchema = new Schema(
       type: String,
       default: "",
     },
-    relationShip: {
+    relationship: {
       type: Number,
-      enum: [1, 2, 3],
-      default: 1,
+      enum: [0, 1, 2, 3], // 0: alone :) | 1: dang hen ho | 2: dang trong 1 mqh | 3: da ket hon
+      default: 0,
     },
     sendFriendRequests: {
       type: Array,
