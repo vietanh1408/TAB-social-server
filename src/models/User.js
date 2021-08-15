@@ -77,6 +77,10 @@ const UserSchema = new Schema(
       type: Date,
       default: Date.now(),
     },
+    isVerifiedMail: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     versionKey: false,

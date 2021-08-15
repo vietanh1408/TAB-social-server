@@ -6,31 +6,57 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const fileUpload = require("express-fileupload");
 const { connectDB } = require("./utils/mongodb");
+const Message = require("./models/Message");
 
 const http = require("http").createServer(app);
 const io = require("socket.io")(http, { cors: { origin: "*" } });
 
 const usersOnline = [];
 io.on("connection", (socket) => {
-  console.log(socket.id, " da ket noi");
+  // user connect
 
-  // truyen thong tin user vao mang user online
-  socket.on("client-send-current-user", (data) => {
-    console.log("data...........", data);
-    socket.Username = data;
-    if (!usersOnline.includes(data)) {
-      usersOnline.push(data);
-    }
-    // gui thong tin cac user dang online
-    io.sockets.emit("server-send-users-online-list", usersOnline);
-    console.log(usersOnline);
+  // user disconnect
+  socket.on("disconnect", () => {
+    console.log(socket.id, "đã ngắt kết nối");
   });
 
-  socket.on("disconnect", () => {
-    console.log(socket.id, " đã ngắt kết nối");
+  // user online
+  socket.on("online", (data) => {
+    console.log(`${data.user} đang online`);
+    socket.broadcast.emit("online", {
+      user: data.user,
+    });
+  });
 
-    io.sockets.emit("server-send-users-online-list", usersOnline);
-    console.log(usersOnline);
+  // someone typing ...
+  socket.on("typing", (data) => {
+    console.log(`${data.user} đang gõ ...`);
+    socket.broadcast.emit("notifyTyping", {
+      user: data.user,
+      message: data.message,
+    });
+  });
+
+  // when someone stop typing
+  socket.on("stopTyping", () => {
+    socket.broadcast.emit("notifyStopTyping");
+  });
+
+  // chat
+  socket.on("chat message", (msg) => {
+    console.log("message................", msg);
+
+    // broadcast message to everyone, except you
+    socket.broadcast.emit("received", { message: msg });
+
+    // save chat to DB
+    let chatMessage = new Message({
+      message: msg,
+      senderId: "123",
+      receiverId: "456",
+    });
+
+    chatMessage.save();
   });
 });
 

@@ -218,8 +218,8 @@ module.exports.commentAPost = async (req, res) => {
       {
         $push: {
           comments: {
-            friendId: req.userId,
-            desc: req.body.comment,
+            author: req.userId,
+            detail: req.body.comment,
           },
         },
       }
