@@ -12,8 +12,8 @@ module.exports.connectDB = async () => {
         useFindAndModify: false,
       }
     );
-    console.log("connected database !");
+    console.log("🔵 connected database !");
   } catch (err) {
-    console.log("connect database fail !");
+    console.log("🔴 connect database fail !");
   }
 };

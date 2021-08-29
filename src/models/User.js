@@ -24,6 +24,11 @@ const UserSchema = new Schema(
       min: 6,
       max: 255,
     },
+    gender: {
+      type: Number,
+      enum: [0, 1, 2], // 0: male | 1: female | 2: other
+      default: null,
+    },
     avatar: {
       type: String,
       default: "",

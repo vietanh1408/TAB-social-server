@@ -14,4 +14,10 @@ router.post("/register", controller.register);
 // POST api/auth/login => login(access public)
 router.post("/login", controller.login);
 
+// logout
+router.get("/logout", controller.logout);
+
+// refresh token
+router.post("/refresh-token", controller.refreshToken);
+
 module.exports = router;

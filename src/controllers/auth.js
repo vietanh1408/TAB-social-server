@@ -1,13 +1,14 @@
 require("dotenv").config();
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
 const loginValidation = require("../validations/auth.login");
 const { generateCode } = require("../extensions/generate");
-const { ADMIN_EMAIL } = require("../constants");
 const sgMail = require("@sendgrid/mail");
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-const nodemailer = require("nodemailer");
+const {
+  createAccessToken,
+  createRefreshToken,
+} = require("../helpers/generateToken");
 
 //  check authenticated
 module.exports.checkAuth = async (req, res) => {
@@ -37,72 +38,26 @@ module.exports.sendMail = async (req, res) => {
   try {
     const randomCode = generateCode(6);
 
-    let transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 587,
-      secure: false,
-      requireTLC: true,
-      auth: {
-        user: "laizeus1408@gmail.com",
-        pass: "vietanh1408",
-      },
-      tls: {
-        rejectUnauthorized: true,
-      },
-    });
-
-    await transporter
-      .sendMail({
-        from: '"Fred Foo 👻" <foo@example.com>', // sender address
-        to: "laizeus1408@gmail.com", // list of receivers
-        subject: "Hello ✔", // Subject line
-        text: "Hello world?", // plain text body
-        html: `<h1>${randomCode}</h1>`, // html body
-      })
-      .then((Response) => {
-        console.log("res..........", Response);
+    const msg = {
+      from: "14081999lva@gmail.com",
+      to: req.body.email,
+      subject: "TAB-social - Verify your email contact",
+      text: "Hello, welcome to TAB-social! Nice to meet you! Please copy this code and paste into verify code input to verify your account",
+      html: `
+        <h1>This is your code: ${randomCode}</h1>
+      `,
+    };
+    // send code to email
+    sgMail.send(msg, (err, info) => {
+      if (err) {
+        console.log("err...............", err);
+      } else {
         return res.status(200).json({
           msg: "Success",
+          info,
         });
-      })
-      .catch((err) => {
-        console.log("err..........", err);
-      });
-
-    // console.log("Message sent: %s", info);
-
-    // return res.status(200).json({
-    //   msg: "Success",
-    //   info,
-    // });
-
-    // const transporter = nodemailer.createTransport({
-    //   service: "Gmail",
-    //   auth: {
-    //     user: "14081999lva@gmail.com",
-    //     pass: "vietanh1408",
-    //   },
-    // });
-
-    // const msg = {
-    //   from: "14081999lva@gmail.com",
-    //   to: req.body.email,
-    //   subject: "TAB-social - Verify your email contact",
-    //   text: "Hello, welcome to TAB-social! Nice to meet you! Please copy this code and paste into verify code input to verify your account",
-    //   html: `
-    //     <h1>This is your code: ${randomCode}</h1>
-    //   `,
-    // };
-    // // send code to email
-    // transporter.sendMail(msg, (err, info) => {
-    //   if (err) {
-    //     throw err;
-    //   }
-    //   return res.status(200).json({
-    //     msg: "Success",
-    //     info,
-    //   });
-    // });
+      }
+    });
   } catch (err) {
     return res.status(500).json({
       success: false,
@@ -133,14 +88,6 @@ module.exports.register = async (req, res) => {
     });
   }
 
-  // check email code
-  // if(!req.body.mailCode) {
-  //   return res.status(400).json({
-  //     success: false,
-  //     message: 'You must verify your mail'
-  //   })
-  // }
-
   // hash password
   const salt = await bcrypt.genSalt(10);
   req.body.password = await bcrypt.hash(req.body.password, salt);
@@ -156,14 +103,25 @@ module.exports.register = async (req, res) => {
 
     const newUser = await user.save();
     // return token
-    const accessToken = jwt.sign(
-      { userId: newUser._id },
-      process.env.TOKEN_SECRET
+    const accessToken = await createAccessToken(
+      newUser._id,
+      process.env.ACCESS_TOKEN_SECRET
     );
+
+    const refreshToken = await createRefreshToken(
+      newUser._id,
+      process.env.REFRESH_TOKEN_SECRET
+    );
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      path: "/api/auth/refresh-token",
+      maxAge: 30 * 7 * 24 * 60 * 60 * 1000,
+    });
 
     return res.status(200).json({
       success: true,
-      message: "Register successfully !",
+      message: "Register successfully",
       accessToken,
     });
   } catch (err) {
@@ -208,19 +166,55 @@ module.exports.login = async (req, res) => {
       });
 
     //create and assign a token
-    const accessToken = jwt.sign(
-      { userId: user._id },
-      process.env.TOKEN_SECRET
+    const accessToken = await createAccessToken(
+      user._id,
+      process.env.ACCESS_TOKEN_SECRET
     );
+    const refreshToken = await createRefreshToken(
+      user._id,
+      process.env.REFRESH_TOKEN_SECRET
+    );
+
+    console.log("accessToken..............", accessToken);
+
     return res.status(200).json({
       success: true,
       message: "Login successfully !",
       accessToken,
+      user,
     });
   } catch (err) {
     return res.status(500).json({
       success: false,
       message: "server error",
+    });
+  }
+};
+
+// LOGOUT
+module.exports.logout = async (req, res) => {
+  try {
+    res.clearCookie("refreshToken", { path: "/api/auth/refresh-token" });
+    return res.status(200).json({
+      success: true,
+      message: "Logout successfully",
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+// refresh token
+module.exports.refreshToken = async (req, res) => {
+  try {
+    const refreshToken = req.cookies.refreshToken;
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
     });
   }
 };
