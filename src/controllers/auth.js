@@ -3,8 +3,9 @@ const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const loginValidation = require("../validations/auth.login");
 const { generateCode } = require("../extensions/generate");
-const sgMail = require("@sendgrid/mail");
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+// const sgMail = require("@sendgrid/mail");
+// sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+const nodemailer = require("nodemailer");
 const {
   createAccessToken,
   createRefreshToken,
@@ -37,24 +38,31 @@ module.exports.checkAuth = async (req, res) => {
 module.exports.sendMail = async (req, res) => {
   try {
     const randomCode = generateCode(6);
+    const smtpTransport = await nodemailer.createTransport({
+      service: "Gmail",
+      auth: {
+        user: process.env.EMAIL,
+        pass: process.env.PASS,
+      },
+    });
 
-    const msg = {
-      from: "14081999lva@gmail.com",
+    const mailOptions = {
+      from: process.env.EMAIL,
       to: req.body.email,
-      subject: "TAB-social - Verify your email contact",
-      text: "Hello, welcome to TAB-social! Nice to meet you! Please copy this code and paste into verify code input to verify your account",
-      html: `
-        <h1>This is your code: ${randomCode}</h1>
-      `,
+      subject: "Invoices due",
+      text: `Mã xác thực tài khoản TAB-social của bạn là ${randomCode}`,
     };
-    // send code to email
-    sgMail.send(msg, (err, info) => {
+
+    smtpTransport.sendMail(mailOptions, (err, res) => {
       if (err) {
-        console.log("err...............", err);
+        return res.status(500).json({
+          success: false,
+          message: "Server error",
+        });
       } else {
         return res.status(200).json({
-          msg: "Success",
-          info,
+          success: true,
+          message: "send mail success",
         });
       }
     });
@@ -74,7 +82,6 @@ module.exports.register = async (req, res) => {
     return res.status(400).json({
       success: false,
       message: "Email address already exists",
-      body: req.body,
     });
   }
 
@@ -84,7 +91,6 @@ module.exports.register = async (req, res) => {
     return res.status(400).json({
       success: false,
       message: "phone number already used",
-      body: req.body,
     });
   }
 
@@ -123,12 +129,12 @@ module.exports.register = async (req, res) => {
       success: true,
       message: "Register successfully",
       accessToken,
+      user: newUser,
     });
   } catch (err) {
     return res.status(500).json({
       success: false,
       message: "Internal server error",
-      body: req.body,
     });
   }
 };
@@ -150,7 +156,6 @@ module.exports.login = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: "Incorrect username or password",
-        body: req.body,
       });
 
     // check password
@@ -162,7 +167,6 @@ module.exports.login = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: "Password invalid!",
-        body: req.body,
       });
 
     //create and assign a token

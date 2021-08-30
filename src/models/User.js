@@ -86,6 +86,10 @@ const UserSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    verifyCode: {
+      type: String,
+      default: "",
+    },
   },
   {
     versionKey: false,
