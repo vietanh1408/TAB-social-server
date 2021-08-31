@@ -1,4 +1,4 @@
-const { Schema, model } = require("mongoose");
+const { Schema, model } = require('mongoose')
 
 const UserSchema = new Schema(
   {
@@ -31,11 +31,11 @@ const UserSchema = new Schema(
     },
     avatar: {
       type: String,
-      default: "",
+      default: '',
     },
     background: {
       type: String,
-      default: "",
+      default: '',
     },
     friends: {
       type: Array,
@@ -51,15 +51,15 @@ const UserSchema = new Schema(
     },
     description: {
       type: String,
-      default: "",
+      default: '',
     },
     city: {
       type: String,
-      default: "",
+      default: '',
     },
     from: {
       type: String,
-      default: "",
+      default: '',
     },
     relationship: {
       type: Number,
@@ -88,12 +88,12 @@ const UserSchema = new Schema(
     },
     verifyCode: {
       type: String,
-      default: "",
+      default: '',
     },
   },
   {
     versionKey: false,
   }
-);
+)
 
-module.exports = model("users", UserSchema);
+module.exports = model('users', UserSchema)

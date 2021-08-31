@@ -1,37 +1,37 @@
-const express = require("express");
-const router = express.Router();
-const controller = require("../controllers/user");
-const verifyToken = require("../middlewares/auth");
+const express = require('express')
+const router = express.Router()
+const controller = require('../controllers/user')
+const verifyToken = require('../middlewares/auth')
 
 // check match password
-router.post("/check-password", verifyToken, controller.checkPassword);
+router.post('/check-password', verifyToken, controller.checkPassword)
 
-// GET api/user/friend-request => get friend request
-router.get("/friend-request", verifyToken, controller.getFriendRequest);
+// get friend requests
+router.get('/friend-request', verifyToken, controller.getFriendRequest)
 
-// POST api/user/addfriend/:id => send add friend request
-router.post("/send-friend-request", verifyToken, controller.sendFriendRequest);
+// send add friend request
+router.post('/send-friend-request', verifyToken, controller.sendFriendRequest)
 
 // accept friend request
 router.put(
-  "/accept-friend-request",
+  '/accept-friend-request',
   verifyToken,
   controller.acceptFriendRequest
-);
+)
 
 // get all friend
-router.get("/friends", verifyToken, controller.getAllFriend);
+router.get('/friends', verifyToken, controller.getAllFriend)
 
 // unfriend
-router.delete("/unfriend", verifyToken, controller.unFriend);
+router.delete('/unfriend', verifyToken, controller.unFriend)
 
 // eidt profile
-router.put("/edit/:id", verifyToken, controller.editProfile);
+router.put('/edit/:id', verifyToken, controller.editProfile)
 
 // get profile
-router.get("/:id", verifyToken, controller.getUserProfile);
+router.get('/:id', verifyToken, controller.getUserProfile)
 
-// GET api/user/posts => get your posts (access public)
-router.get("/posts", verifyToken, controller.getOwnPost);
+// get own posts
+router.get('/posts', verifyToken, controller.getOwnPost)
 
-module.exports = router;
+module.exports = router

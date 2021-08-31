@@ -1,164 +1,164 @@
-const Post = require("../models/Post");
-const postValidation = require("../validations/post.create");
-const ObjectId = require("mongodb").ObjectID;
+const Post = require('../models/Post')
+const postValidation = require('../validations/post.create')
+const ObjectId = require('mongodb').ObjectID
 
 // get all post
 module.exports.index = async (req, res) => {
   try {
     const posts = await Post.find()
-      .populate("user", ["name", "avatar"])
-      .sort({ createAt: -1 });
+      .populate('user', ['name', 'avatar'])
+      .sort({ createAt: -1 })
     return res.status(200).json({
       success: true,
-      message: "get all posts successfully",
+      message: 'get all posts successfully',
       posts: posts,
-    });
+    })
   } catch (err) {
     return res.status(500).json({
       success: false,
-      message: "server error",
-    });
+      message: 'server error',
+    })
   }
-};
+}
 
 // get post by id
 module.exports.getPostById = async (req, res) => {
   try {
-    const id = ObjectId(req.params.id);
-    const post = await Post.findOne({ _id: id }).populate("user", [
-      "name",
-      "avatar",
-    ]);
+    const id = ObjectId(req.params.id)
+    const post = await Post.findOne({ _id: id }).populate('user', [
+      'name',
+      'avatar',
+    ])
     if (!post) {
       return res.status(400).json({
         success: false,
-        message: "Post not found",
-      });
+        message: 'Post not found',
+      })
     }
     return res.status(200).json({
       success: true,
-      message: "get post by id successfully",
+      message: 'get post by id successfully',
       post: post,
-    });
+    })
   } catch (err) {
     return res.status(500).json({
       success: false,
-      message: "server error",
-    });
+      message: 'server error',
+    })
   }
-};
+}
 
 // create post
 module.exports.createPost = async (req, res) => {
-  const { description, image } = req.body;
+  const { description, image } = req.body
 
   // validate create post
-  const { error } = postValidation(req.body);
+  const { error } = postValidation(req.body)
   if (error)
     return res.status(400).json({
       success: false,
-      message: "haha",
-    });
+      message: 'haha',
+    })
 
   try {
     const newPost = new Post({
       userId: req.userId,
       description,
       image,
-    });
+    })
 
-    await newPost.save();
+    await newPost.save()
 
     return res.status(200).json({
       success: true,
-      message: "create a new post successfully",
+      message: 'create a new post successfully',
       post: newPost,
-    });
+    })
   } catch (err) {
     return res.status(500).json({
       success: false,
-      message: "server error",
-    });
+      message: 'server error',
+    })
   }
-};
+}
 
 // edit post
 module.exports.editPost = async (req, res) => {
   try {
-    const post = await Post.findById(req.params.id);
+    const post = await Post.findById(req.params.id)
 
     if (!post) {
       return res.status(400).json({
         success: false,
-        message: "Post not found",
-      });
+        message: 'Post not found',
+      })
     }
     // check own post
     if (post.userId === req.userId) {
       try {
-        await Post.findByIdAndUpdate(req.params.id, { $set: req.body });
+        await Post.findByIdAndUpdate(req.params.id, { $set: req.body })
         return res.status(200).json({
           success: true,
-          message: "Update post successfully",
-        });
+          message: 'Update post successfully',
+        })
       } catch (err) {
         return res.status(500).json({
           success: false,
-          message: "Internal server error",
-        });
+          message: 'Internal server error',
+        })
       }
     } else {
       return res.status(400).json({
         success: false,
-        message: "You only can edit your post",
-      });
+        message: 'You only can edit your post',
+      })
     }
   } catch (err) {
     return res.status(500).json({
       success: false,
-      message: "server error",
-    });
+      message: 'server error',
+    })
   }
-};
+}
 
 // delete post
 module.exports.deletePost = async (req, res) => {
   try {
-    const post = await Post.findById(req.params.id);
+    const post = await Post.findById(req.params.id)
 
     if (!post) {
       return res.status(400).json({
         success: false,
-        message: "Post not found",
-      });
+        message: 'Post not found',
+      })
     }
     // check own post
     if (post.userId === req.userId) {
       try {
-        await Post.findByIdAndDelete(req.params.id);
+        await Post.findByIdAndDelete(req.params.id)
         return res.status(200).json({
           success: true,
-          message: "Delete post successfully",
-        });
+          message: 'Delete post successfully',
+        })
       } catch (err) {
         return res.status(500).json({
           success: false,
-          message: "Internal server error",
-        });
+          message: 'Internal server error',
+        })
       }
     } else {
       return res.status(400).json({
         success: false,
-        message: "You only can edit your post",
-      });
+        message: 'You only can edit your post',
+      })
     }
   } catch (err) {
     return res.status(500).json({
       success: false,
-      message: "server error",
-    });
+      message: 'server error',
+    })
   }
-};
+}
 
 // like a post
 module.exports.likeAPost = async (req, res) => {
@@ -172,19 +172,19 @@ module.exports.likeAPost = async (req, res) => {
           likes: req.userId,
         },
       }
-    );
+    )
 
     return res.status(200).json({
       success: true,
-      message: "Like this post successfully",
-    });
+      message: 'Like this post successfully',
+    })
   } catch (err) {
     return res.status(500).json({
       success: false,
-      message: "server error",
-    });
+      message: 'server error',
+    })
   }
-};
+}
 
 // dislike a post
 module.exports.dislikeAPost = async (req, res) => {
@@ -196,19 +196,19 @@ module.exports.dislikeAPost = async (req, res) => {
       {
         $pull: { likes: req.userId },
       }
-    );
+    )
 
     return res.status(200).json({
       success: true,
-      message: "dislike this post successfully",
-    });
+      message: 'dislike this post successfully',
+    })
   } catch (err) {
     return res.status(500).json({
       success: false,
-      message: "server error",
-    });
+      message: 'server error',
+    })
   }
-};
+}
 
 // comment a post
 module.exports.commentAPost = async (req, res) => {
@@ -223,30 +223,30 @@ module.exports.commentAPost = async (req, res) => {
           },
         },
       }
-    );
+    )
 
     return res.status(200).json({
       success: true,
-      message: "comment this post successfully",
-    });
+      message: 'comment this post successfully',
+    })
   } catch (err) {
     return res.status(500).json({
       success: false,
-      message: "server error",
-    });
+      message: 'server error',
+    })
   }
-};
+}
 
 // remove comment
 module.exports.removeComment = async (req, res) => {
   try {
     // check own comment ( chi ban hoac tac gia bai viet moi co the xoa comment)
-    const { comments, userId } = await Post.findById(req.body.postId);
+    const { comments, userId } = await Post.findById(req.body.postId)
 
     const checkOwnerComment = comments.some(
       (comment) => comment.friendId === req.userId
-    );
-    const checkAuthor = userId === req.userId ? true : false;
+    )
+    const checkAuthor = userId === req.userId ? true : false
 
     if (checkAuthor || checkOwnerComment) {
       await Post.updateMany(
@@ -258,23 +258,23 @@ module.exports.removeComment = async (req, res) => {
             },
           },
         }
-      );
+      )
 
       return res.status(200).json({
         success: true,
-        message: "remove comment this post successfully",
-      });
+        message: 'remove comment this post successfully',
+      })
     } else {
       // neu k phai chu bai viet hoac chu comment => k dc xoa comment
       return res.status(400).json({
         success: false,
         message: "You cant remove other's comment",
-      });
+      })
     }
   } catch (err) {
     return res.status(500).json({
       success: false,
-      message: "server error",
-    });
+      message: 'server error',
+    })
   }
-};
+}

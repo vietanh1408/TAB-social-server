@@ -1,12 +1,12 @@
 module.exports.generateCode = (length) => {
-  let result = "";
+  let result = ''
   let characters =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  let charactersLength = characters.length;
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+  let charactersLength = characters.length
   for (let i = 0; i < length; i++) {
     result += characters
       .charAt(Math.floor(Math.random() * charactersLength))
-      .toUpperCase();
+      .toUpperCase()
   }
-  return result;
-};
+  return result
+}

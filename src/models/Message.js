@@ -1,4 +1,4 @@
-const { Schema, model } = require("mongoose");
+const { Schema, model } = require('mongoose')
 
 const MessageSchema = new Schema({
   senderId: {
@@ -17,6 +17,6 @@ const MessageSchema = new Schema({
     type: Date,
     default: Date.now(),
   },
-});
+})
 
-module.exports = model("messages", MessageSchema);
+module.exports = model('messages', MessageSchema)

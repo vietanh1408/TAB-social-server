@@ -1,4 +1,4 @@
-const Joi = require("@hapi/joi");
+const Joi = require('@hapi/joi')
 
 const postValidation = (data) => {
   const schema = Joi.object({
@@ -7,8 +7,8 @@ const postValidation = (data) => {
     image: Joi.string(),
     likes: Joi.array(),
     comments: Joi.array(),
-  });
+  })
 
-  return schema.validate(data);
-};
-module.exports = postValidation;
+  return schema.validate(data)
+}
+module.exports = postValidation

@@ -1,102 +1,143 @@
-require("dotenv").config();
-const User = require("../models/User");
-const bcrypt = require("bcryptjs");
-const loginValidation = require("../validations/auth.login");
-const { generateCode } = require("../extensions/generate");
-// const sgMail = require("@sendgrid/mail");
-// sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-const nodemailer = require("nodemailer");
+require('dotenv').config()
+const nodemailer = require('nodemailer')
+const bcrypt = require('bcryptjs')
+const ObjectId = require('mongodb').ObjectID
+const User = require('../models/User')
+const loginValidation = require('../validations/auth.login')
+const { generateCode } = require('../extensions/generate')
 const {
   createAccessToken,
   createRefreshToken,
-} = require("../helpers/generateToken");
+} = require('../helpers/generateToken')
 
 //  check authenticated
 module.exports.checkAuth = async (req, res) => {
   try {
-    const user = await User.findById(req.userId);
+    const user = await User.findById(req.userId)
     if (!user) {
       return res.status(400).json({
         success: false,
-        message: "Not found user",
-      });
+        message: 'Not found user',
+      })
     }
     return res.status(200).json({
       success: true,
-      message: "authenticated",
+      message: 'authenticated',
       user: user,
-    });
+    })
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: "server error",
-    });
+      message: 'server error',
+    })
   }
-};
+}
 
 // send mail
 module.exports.sendMail = async (req, res) => {
   try {
-    const randomCode = generateCode(6);
+    const randomCode = generateCode(6)
     const smtpTransport = await nodemailer.createTransport({
-      service: "Gmail",
+      service: 'Gmail',
       auth: {
         user: process.env.EMAIL,
         pass: process.env.PASS,
       },
-    });
+    })
 
     const mailOptions = {
       from: process.env.EMAIL,
       to: req.body.email,
-      subject: "Invoices due",
+      subject: 'Mã xác thực tài khoản TAB-social',
       text: `Mã xác thực tài khoản TAB-social của bạn là ${randomCode}`,
-    };
+    }
 
-    smtpTransport.sendMail(mailOptions, (err, res) => {
+    smtpTransport.sendMail(mailOptions, async (err, response) => {
       if (err) {
         return res.status(500).json({
           success: false,
-          message: "Server error",
-        });
-      } else {
-        return res.status(200).json({
-          success: true,
-          message: "send mail success",
-        });
+          message: 'Server error',
+        })
       }
-    });
+
+      console.log('code....', randomCode)
+      await User.updateOne(
+        { _id: ObjectId(req.userId) },
+        {
+          $addToSet: {
+            verifyCode: randomCode,
+          },
+        }
+      )
+      return res.status(200).json({
+        success: true,
+        message: 'send mail success',
+      })
+    })
   } catch (err) {
     return res.status(500).json({
       success: false,
-      message: "Server error",
-    });
+      message: 'Server error',
+    })
   }
-};
+}
+
+// CHECK VERIFY CODE
+module.exports.checkVerify = async (req, res) => {
+  try {
+    const isMatchCode = await User.findOne({ verifyCode: req.body.code })
+
+    if (!isMatchCode) {
+      return res.status(400).json({
+        success: false,
+        message: 'Code is invalid',
+      })
+    }
+
+    await User.findOneAndUpdate(
+      { verifyCode: req.body.code },
+      {
+        $addToSet: {
+          isVerifiedMail: true,
+        },
+      }
+    )
+
+    return res.status(200).json({
+      success: true,
+      message: 'Verify email success',
+    })
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: 'Server error',
+    })
+  }
+}
 
 // REGISTER
 module.exports.register = async (req, res) => {
   // check email already exist
-  const emailExist = await User.findOne({ email: req.body.email });
+  const emailExist = await User.findOne({ email: req.body.email })
   if (emailExist) {
     return res.status(400).json({
       success: false,
-      message: "Email address already exists",
-    });
+      message: 'Email address already exists',
+    })
   }
 
   // check phone number
-  const phoneExist = await User.findOne({ phone: req.body.phone });
+  const phoneExist = await User.findOne({ phone: req.body.phone })
   if (phoneExist) {
     return res.status(400).json({
       success: false,
-      message: "phone number already used",
-    });
+      message: 'phone number already used',
+    })
   }
 
   // hash password
-  const salt = await bcrypt.genSalt(10);
-  req.body.password = await bcrypt.hash(req.body.password, salt);
+  const salt = await bcrypt.genSalt(10)
+  req.body.password = await bcrypt.hash(req.body.password, salt)
 
   try {
     const user = new User({
@@ -104,121 +145,117 @@ module.exports.register = async (req, res) => {
       email: req.body.email,
       phone: req.body.phone,
       password: req.body.password,
-      isVerifiedMail: true,
-    });
+    })
 
-    const newUser = await user.save();
+    const newUser = await user.save()
     // return token
     const accessToken = await createAccessToken(
       newUser._id,
       process.env.ACCESS_TOKEN_SECRET
-    );
+    )
 
     const refreshToken = await createRefreshToken(
       newUser._id,
       process.env.REFRESH_TOKEN_SECRET
-    );
+    )
 
-    res.cookie("refreshToken", refreshToken, {
+    res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      path: "/api/auth/refresh-token",
+      path: '/api/auth/refresh-token',
       maxAge: 30 * 7 * 24 * 60 * 60 * 1000,
-    });
+    })
 
     return res.status(200).json({
       success: true,
-      message: "Register successfully",
+      message: 'Register successfully',
       accessToken,
       user: newUser,
-    });
+    })
   } catch (err) {
     return res.status(500).json({
       success: false,
-      message: "Internal server error",
-    });
+      message: 'Internal server error',
+    })
   }
-};
+}
 
 // LOGIN
 module.exports.login = async (req, res) => {
   // validate login
-  const { error } = loginValidation(req.body);
+  const { error } = loginValidation(req.body)
   if (error)
     return res.status(400).json({
       success: false,
       message: error.details[0].message,
-    });
+    })
 
   try {
     // check email login
-    const user = await User.findOne({ email: req.body.email });
+    const user = await User.findOne({ email: req.body.email })
     if (!user)
       return res.status(400).json({
         success: false,
-        message: "Incorrect username or password",
-      });
+        message: 'Incorrect username or password',
+      })
 
     // check password
-    const validPassword = await bcrypt.compare(
-      req.body.password,
-      user.password
-    );
+    const validPassword = await bcrypt.compare(req.body.password, user.password)
     if (!validPassword)
       return res.status(400).json({
         success: false,
-        message: "Password invalid!",
-      });
+        message: 'Password invalid!',
+      })
 
     //create and assign a token
     const accessToken = await createAccessToken(
       user._id,
       process.env.ACCESS_TOKEN_SECRET
-    );
+    )
     const refreshToken = await createRefreshToken(
       user._id,
       process.env.REFRESH_TOKEN_SECRET
-    );
+    )
 
-    console.log("accessToken..............", accessToken);
+    console.log('accessToken..............', accessToken)
 
     return res.status(200).json({
       success: true,
-      message: "Login successfully !",
+      message: 'Login successfully !',
       accessToken,
       user,
-    });
+    })
   } catch (err) {
     return res.status(500).json({
       success: false,
-      message: "server error",
-    });
+      message: 'server error',
+    })
   }
-};
+}
 
 // LOGOUT
 module.exports.logout = async (req, res) => {
   try {
-    res.clearCookie("refreshToken", { path: "/api/auth/refresh-token" });
+    res.clearCookie('refreshToken', { path: '/api/auth/refresh-token' })
     return res.status(200).json({
       success: true,
-      message: "Logout successfully",
-    });
+      message: 'Logout successfully',
+    })
   } catch (err) {
     return res.status(500).json({
       success: false,
-      message: "Internal server error",
-    });
+      message: 'Internal server error',
+    })
   }
-};
+}
 
 // refresh token
 module.exports.refreshToken = async (req, res) => {
   try {
-    const refreshToken = req.cookies.refreshToken;
+    const refreshToken = req.cookies.refreshToken
   } catch (err) {
     return res.status(500).json({
       success: false,
-      message: "Internal server error",
-    });
+      message: 'Internal server error',
+    })
   }
-};
+}

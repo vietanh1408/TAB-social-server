@@ -1,4 +1,4 @@
-const { Schema, model } = require("mongoose");
+const { Schema, model } = require('mongoose')
 
 const CommentSchema = new Schema({
   author: {
@@ -8,7 +8,7 @@ const CommentSchema = new Schema({
   detail: {
     type: String,
   },
-});
+})
 
 const PostSchema = new Schema(
   {
@@ -20,11 +20,11 @@ const PostSchema = new Schema(
       type: String,
       required: true,
       max: 1024,
-      default: "",
+      default: '',
     },
     image: {
       type: String,
-      default: "",
+      default: '',
     },
     likes: {
       type: Array,
@@ -42,6 +42,6 @@ const PostSchema = new Schema(
   {
     versionKey: false,
   }
-);
+)
 
-module.exports = model("posts", PostSchema);
+module.exports = model('posts', PostSchema)
