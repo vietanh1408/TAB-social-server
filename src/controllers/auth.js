@@ -35,6 +35,7 @@ module.exports.checkAuth = async (req, res) => {
 
 // send mail
 module.exports.sendMail = async (req, res) => {
+  console.log('req.body...', req.body)
   try {
     const randomCode = generateCode(6)
     const smtpTransport = await nodemailer.createTransport({
@@ -64,9 +65,7 @@ module.exports.sendMail = async (req, res) => {
       await User.updateOne(
         { _id: ObjectId(req.userId) },
         {
-          $addToSet: {
-            verifyCode: randomCode,
-          },
+          verifyCode: randomCode,
         }
       )
       return res.status(200).json({
@@ -97,9 +96,7 @@ module.exports.checkVerify = async (req, res) => {
     await User.findOneAndUpdate(
       { verifyCode: req.body.code },
       {
-        $addToSet: {
-          isVerifiedMail: true,
-        },
+        isVerifiedMail: true,
       }
     )
 
@@ -181,21 +178,15 @@ module.exports.register = async (req, res) => {
 
 // LOGIN
 module.exports.login = async (req, res) => {
-  // validate login
-  const { error } = loginValidation(req.body)
-  if (error)
-    return res.status(400).json({
-      success: false,
-      message: error.details[0].message,
-    })
-
   try {
     // check email login
-    const user = await User.findOne({ email: req.body.email })
+    const user = await User.findOne({
+      $or: [{ email: req.body.emailOrPhone }, { phone: req.body.emailOrPhone }],
+    })
     if (!user)
       return res.status(400).json({
         success: false,
-        message: 'Incorrect username or password',
+        message: 'Sai tên đăng nhập hoặc mật khẩu',
       })
 
     // check password
@@ -203,7 +194,7 @@ module.exports.login = async (req, res) => {
     if (!validPassword)
       return res.status(400).json({
         success: false,
-        message: 'Password invalid!',
+        message: 'Mật khẩu không chính xác',
       })
 
     //create and assign a token
@@ -220,7 +211,7 @@ module.exports.login = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: 'Login successfully !',
+      message: 'Login successfully',
       accessToken,
       user,
     })
