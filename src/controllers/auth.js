@@ -3,7 +3,6 @@ const nodemailer = require('nodemailer')
 const bcrypt = require('bcryptjs')
 const ObjectId = require('mongodb').ObjectID
 const User = require('../models/User')
-const loginValidation = require('../validations/auth.login')
 const { generateCode } = require('../extensions/generate')
 const {
   createAccessToken,
@@ -35,9 +34,9 @@ module.exports.checkAuth = async (req, res) => {
 
 // send mail
 module.exports.sendMail = async (req, res) => {
-  console.log('req.body...', req.body)
   try {
     const randomCode = generateCode(6)
+
     const smtpTransport = await nodemailer.createTransport({
       service: 'Gmail',
       auth: {
@@ -45,14 +44,12 @@ module.exports.sendMail = async (req, res) => {
         pass: process.env.PASS,
       },
     })
-
     const mailOptions = {
       from: process.env.EMAIL,
       to: req.body.email,
       subject: 'Mã xác thực tài khoản TAB-social',
       text: `Mã xác thực tài khoản TAB-social của bạn là ${randomCode}`,
     }
-
     smtpTransport.sendMail(mailOptions, async (err, response) => {
       if (err) {
         return res.status(500).json({
@@ -60,7 +57,6 @@ module.exports.sendMail = async (req, res) => {
           message: 'Server error',
         })
       }
-
       console.log('code....', randomCode)
       await User.updateOne(
         { _id: ObjectId(req.userId) },
@@ -122,7 +118,6 @@ module.exports.register = async (req, res) => {
       message: 'Email address already exists',
     })
   }
-
   // check phone number
   const phoneExist = await User.findOne({ phone: req.body.phone })
   if (phoneExist) {
@@ -131,36 +126,34 @@ module.exports.register = async (req, res) => {
       message: 'phone number already used',
     })
   }
-
   // hash password
   const salt = await bcrypt.genSalt(10)
   req.body.password = await bcrypt.hash(req.body.password, salt)
 
   try {
+    // create new user
     const user = new User({
       name: req.body.name,
       email: req.body.email,
       phone: req.body.phone,
       password: req.body.password,
     })
-
     const newUser = await user.save()
     // return token
     const accessToken = await createAccessToken(
       newUser._id,
       process.env.ACCESS_TOKEN_SECRET
     )
-
     const refreshToken = await createRefreshToken(
       newUser._id,
       process.env.REFRESH_TOKEN_SECRET
     )
 
-    res.cookie('refreshToken', refreshToken, {
-      httpOnly: true,
-      path: '/api/auth/refresh-token',
-      maxAge: 30 * 7 * 24 * 60 * 60 * 1000,
-    })
+    // res.cookie('refreshToken', refreshToken, {
+    //   httpOnly: true,
+    //   path: '/api/auth/refresh-token',
+    //   maxAge: 30 * 7 * 24 * 60 * 60 * 1000,
+    // })
 
     return res.status(200).json({
       success: true,
@@ -186,7 +179,7 @@ module.exports.login = async (req, res) => {
     if (!user)
       return res.status(400).json({
         success: false,
-        message: 'Sai tên đăng nhập hoặc mật khẩu',
+        message: 'Email hoặc số điện thoại không tồn tại',
       })
 
     // check password
@@ -206,8 +199,6 @@ module.exports.login = async (req, res) => {
       user._id,
       process.env.REFRESH_TOKEN_SECRET
     )
-
-    console.log('accessToken..............', accessToken)
 
     return res.status(200).json({
       success: true,

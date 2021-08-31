@@ -57,7 +57,7 @@ module.exports.createPost = async (req, res) => {
   if (error)
     return res.status(400).json({
       success: false,
-      message: 'haha',
+      message: 'Tạo bài viết thất bại',
     })
 
   try {
