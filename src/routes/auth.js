@@ -11,9 +11,6 @@ router.post('/register', controller.register)
 // login
 router.post('/login', controller.login)
 
-// send mail to verify email
-router.post('/send-mail', verifyToken, controller.sendMail)
-
 // check verify code
 router.post('/check-verify', verifyToken, controller.checkVerify)
 

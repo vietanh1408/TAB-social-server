@@ -9,7 +9,7 @@ const {
   createRefreshToken,
 } = require('../helpers/generateToken')
 
-//  check authenticated
+// check authenticated
 module.exports.checkAuth = async (req, res) => {
   try {
     const user = await User.findById(req.userId)
@@ -28,51 +28,6 @@ module.exports.checkAuth = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: 'server error',
-    })
-  }
-}
-
-// send mail
-module.exports.sendMail = async (req, res) => {
-  try {
-    const randomCode = generateCode(6)
-
-    const smtpTransport = await nodemailer.createTransport({
-      service: 'Gmail',
-      auth: {
-        user: process.env.EMAIL,
-        pass: process.env.PASS,
-      },
-    })
-    const mailOptions = {
-      from: process.env.EMAIL,
-      to: req.body.email,
-      subject: 'Mã xác thực tài khoản TAB-social',
-      text: `Mã xác thực tài khoản TAB-social của bạn là ${randomCode}`,
-    }
-    smtpTransport.sendMail(mailOptions, async (err, response) => {
-      if (err) {
-        return res.status(500).json({
-          success: false,
-          message: 'Server error',
-        })
-      }
-      console.log('code....', randomCode)
-      await User.updateOne(
-        { _id: ObjectId(req.userId) },
-        {
-          verifyCode: randomCode,
-        }
-      )
-      return res.status(200).json({
-        success: true,
-        message: 'send mail success',
-      })
-    })
-  } catch (err) {
-    return res.status(500).json({
-      success: false,
-      message: 'Server error',
     })
   }
 }
@@ -144,22 +99,40 @@ module.exports.register = async (req, res) => {
       newUser._id,
       process.env.ACCESS_TOKEN_SECRET
     )
-    const refreshToken = await createRefreshToken(
-      newUser._id,
-      process.env.REFRESH_TOKEN_SECRET
-    )
-
-    // res.cookie('refreshToken', refreshToken, {
-    //   httpOnly: true,
-    //   path: '/api/auth/refresh-token',
-    //   maxAge: 30 * 7 * 24 * 60 * 60 * 1000,
-    // })
-
-    return res.status(200).json({
-      success: true,
-      message: 'Register successfully',
-      accessToken,
-      user: newUser,
+    // send mail
+    const randomCode = generateCode(6)
+    const smtpTransport = await nodemailer.createTransport({
+      service: 'Gmail',
+      auth: {
+        user: process.env.EMAIL,
+        pass: process.env.PASS,
+      },
+    })
+    const mailOptions = {
+      from: process.env.EMAIL,
+      to: newUser.email,
+      subject: 'Mã xác thực tài khoản TAB-social',
+      text: `Mã xác thực tài khoản TAB-social của bạn là ${randomCode}`,
+    }
+    smtpTransport.sendMail(mailOptions, async (err, response) => {
+      if (err) {
+        return res.status(500).json({
+          success: false,
+          message: 'Server error',
+        })
+      }
+      await User.updateOne(
+        { _id: ObjectId(newUser._id) },
+        {
+          verifyCode: randomCode,
+        }
+      )
+      return res.status(200).json({
+        success: true,
+        message: 'send mail success',
+        accessToken,
+        user: newUser,
+      })
     })
   } catch (err) {
     return res.status(500).json({
