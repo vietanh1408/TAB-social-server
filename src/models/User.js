@@ -15,8 +15,6 @@ const UserSchema = new Schema(
     },
     phone: {
       type: String,
-      min: 8,
-      max: 12,
     },
     password: {
       type: String,

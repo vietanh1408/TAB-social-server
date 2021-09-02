@@ -9,6 +9,11 @@ const {
   createRefreshToken,
 } = require('../helpers/generateToken')
 
+const { google } = require('googleapis')
+const { OAuth2 } = google.auth
+
+const client = new OAuth2(process.env.GOOGLE_CLIENT_ID)
+
 // check authenticated
 module.exports.checkAuth = async (req, res) => {
   try {
@@ -35,7 +40,10 @@ module.exports.checkAuth = async (req, res) => {
 // CHECK VERIFY CODE
 module.exports.checkVerify = async (req, res) => {
   try {
-    const isMatchCode = await User.findOne({ verifyCode: req.body.code })
+    const isMatchCode = await User.findOne({
+      verifyCode: req.body.code,
+      _id: req.userId,
+    })
 
     if (!isMatchCode) {
       return res.status(400).json({
@@ -157,11 +165,12 @@ module.exports.login = async (req, res) => {
 
     // check password
     const validPassword = await bcrypt.compare(req.body.password, user.password)
-    if (!validPassword)
+    if (!validPassword) {
       return res.status(400).json({
         success: false,
         message: 'Mật khẩu không chính xác',
       })
+    }
 
     //create and assign a token
     const accessToken = await createAccessToken(
@@ -207,6 +216,77 @@ module.exports.logout = async (req, res) => {
 module.exports.refreshToken = async (req, res) => {
   try {
     const refreshToken = req.cookies.refreshToken
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+    })
+  }
+}
+
+// login with google
+module.exports.loginWithGG = async (req, res) => {
+  try {
+    const { tokenId } = req.body
+    const verify = await client.verifyIdToken({
+      idToken: tokenId,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    })
+    const { email_verified, email, name, picture } = verify.payload
+    const password = email + process.env.GOOGLE_CLIENT_CODE
+    // hash password
+    const salt = await bcrypt.genSalt(10)
+    const hashPassword = await bcrypt.hash(password, salt)
+    if (!email_verified) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email của bạn chưa được xác thực',
+      })
+    }
+    // check da ton tai user trong DB chua
+    const user = await User.findOne({ email })
+    // da co user
+    if (user) {
+      // check password
+      const validPassword = await bcrypt.compare(password, user.password)
+      if (!validPassword) {
+        return res.status(400).json({
+          success: false,
+          message: 'Mật khẩu không chính xác',
+        })
+      }
+      //create and assign a token
+      const accessToken = await createAccessToken(
+        user._id,
+        process.env.ACCESS_TOKEN_SECRET
+      )
+      return res.status(200).json({
+        success: true,
+        message: 'Login successfully',
+        accessToken,
+        user,
+      })
+    } else {
+      // create new user
+      const user = new User({
+        name,
+        email,
+        avatar: picture,
+        password: hashPassword,
+      })
+      const newUser = await user.save()
+      // return token
+      const accessToken = await createAccessToken(
+        newUser._id,
+        process.env.ACCESS_TOKEN_SECRET
+      )
+      return res.status(200).json({
+        success: true,
+        message: 'Login Google success',
+        accessToken,
+        user: newUser,
+      })
+    }
   } catch (err) {
     return res.status(500).json({
       success: false,

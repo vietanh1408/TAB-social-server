@@ -11,6 +11,9 @@ router.post('/register', controller.register)
 // login
 router.post('/login', controller.login)
 
+// login with google
+router.post('/google-login', controller.loginWithGG)
+
 // check verify code
 router.post('/check-verify', verifyToken, controller.checkVerify)
 
