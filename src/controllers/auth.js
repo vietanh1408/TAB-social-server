@@ -157,14 +157,18 @@ module.exports.login = async (req, res) => {
     const user = await User.findOne({
       $or: [{ email: req.body.emailOrPhone }, { phone: req.body.emailOrPhone }],
     })
-    if (!user)
+    if (!user) {
       return res.status(400).json({
         success: false,
         message: 'Email hoặc số điện thoại không tồn tại',
       })
+    }
+
+    console.log('req.body.password....', req.body.password)
 
     // check password
     const validPassword = await bcrypt.compare(req.body.password, user.password)
+    console.log('validPassword........', validPassword)
     if (!validPassword) {
       return res.status(400).json({
         success: false,

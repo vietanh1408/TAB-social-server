@@ -6,8 +6,9 @@ const MessageSchema = new Schema({
     required: true,
   },
   receiverId: {
-    type: String,
+    type: Array,
     required: true,
+    default: [],
   },
   message: {
     type: String,
@@ -16,6 +17,10 @@ const MessageSchema = new Schema({
   createdAt: {
     type: Date,
     default: Date.now(),
+  },
+  roomId: {
+    type: String,
+    required: true,
   },
 })
 

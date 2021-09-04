@@ -40,7 +40,6 @@ connectDB()
 
 // connect socket.io
 io.on('connection', (socket) => {
-  console.log(socket.id, '-connected...')
   SocketServer(socket)
 })
 
