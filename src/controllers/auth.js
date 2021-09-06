@@ -163,19 +163,14 @@ module.exports.login = async (req, res) => {
         message: 'Email hoặc số điện thoại không tồn tại',
       })
     }
-
-    console.log('req.body.password....', req.body.password)
-
     // check password
     const validPassword = await bcrypt.compare(req.body.password, user.password)
-    console.log('validPassword........', validPassword)
     if (!validPassword) {
       return res.status(400).json({
         success: false,
         message: 'Mật khẩu không chính xác',
       })
     }
-
     //create and assign a token
     const accessToken = await createAccessToken(
       user._id,
@@ -277,6 +272,7 @@ module.exports.loginWithGG = async (req, res) => {
         email,
         avatar: picture,
         password: hashPassword,
+        isVerifiedMail: true,
       })
       const newUser = await user.save()
       // return token

@@ -3,11 +3,9 @@ let users = [] // --> all user connect socket
 module.exports.SocketServer = (socket) => {
   // Join socket: server <---(user)---- client
   socket.on('joinSocket', (user) => {
-    console.log(socket.id, ' connected')
     users.push({
       id: user._id,
       socketId: socket.id,
-      friends: user.friends,
       name: user.name,
       avatar: user.avatar,
     })
@@ -40,7 +38,6 @@ module.exports.SocketServer = (socket) => {
   })
 }
 
-// const usersOnline = [];
 // io.on("connection", (socket) => {
 //   // user connect
 
