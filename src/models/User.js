@@ -29,7 +29,7 @@ const UserSchema = new Schema(
     },
     avatar: {
       type: String,
-      default: '',
+      default: `https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS1mIqKy86M1mYgD1hZ87y3cp-86rVWkYWh7Q&usqp=CAU`,
     },
     background: {
       type: String,

@@ -49,19 +49,16 @@ module.exports.checkVerify = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: 'Code is invalid',
+        isVerify: false,
       })
     }
 
-    await User.findOneAndUpdate(
-      { verifyCode: req.body.code },
-      {
-        isVerifiedMail: true,
-      }
-    )
+    await User.findByIdAndUpdate(req.userId, { $set: { isVerifiedMail: true } })
 
     return res.status(200).json({
       success: true,
       message: 'Verify email success',
+      isVerify: true,
     })
   } catch (err) {
     return res.status(500).json({
