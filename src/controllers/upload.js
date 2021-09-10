@@ -43,21 +43,16 @@ module.exports.upload = async (req, res, next) => {
     // )
 
     const file = req.body.data
-    await cloudinary.uploader.upload(
-      file,
-      { folder: 'TAB-social' },
-      async (err, result) => {
-        if (err) {
-          throw err
-        }
-        return res.status(200).json({
-          success: true,
-          message: 'Upload file successfully',
-          public_id: result.public_id,
-          url: result.url,
-        })
-      }
-    )
+
+    const uploadResposne = await cloudinary.uploader.upload(file, {
+      folder: 'TAB-social',
+    })
+    return res.status(200).json({
+      success: true,
+      message: 'Upload file successfully',
+      public_id: uploadResposne.public_id,
+      url: uploadResposne.url,
+    })
   } catch (err) {
     return res.status(500).json({
       success: false,

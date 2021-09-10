@@ -1,5 +1,27 @@
 const { Schema, model } = require('mongoose')
 
+const BackgroundSchema = new Schema({
+  publicId: {
+    type: String,
+    default: '',
+  },
+  url: {
+    type: String,
+    default: '',
+  },
+})
+
+const AvatarSchema = new Schema({
+  publicId: {
+    type: String,
+    default: '',
+  },
+  url: {
+    type: String,
+    default: `https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS1mIqKy86M1mYgD1hZ87y3cp-86rVWkYWh7Q&usqp=CAU`,
+  },
+})
+
 const UserSchema = new Schema(
   {
     name: {
@@ -28,12 +50,14 @@ const UserSchema = new Schema(
       default: null,
     },
     avatar: {
-      type: String,
-      default: `https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS1mIqKy86M1mYgD1hZ87y3cp-86rVWkYWh7Q&usqp=CAU`,
+      type: AvatarSchema,
+      default: {
+        publicId: '123',
+        url: `https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS1mIqKy86M1mYgD1hZ87y3cp-86rVWkYWh7Q&usqp=CAU`,
+      },
     },
     background: {
-      type: String,
-      default: '',
+      type: BackgroundSchema,
     },
     friends: {
       type: Array,

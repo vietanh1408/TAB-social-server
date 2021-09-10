@@ -97,16 +97,19 @@ module.exports.editProfile = async (req, res) => {
   } else {
     try {
       // doi mat khau
-      if (req.body.password) {
+      if (req.body.data.password) {
         const salt = await bcrypt.genSalt(10)
-        req.body.password = await bcrypt.hash(req.body.password, salt)
+        req.body.datapassword = await bcrypt.hash(req.body.data.password, salt)
       }
       await User.findByIdAndUpdate(req.params.id, {
-        $set: req.body,
+        $set: req.body.data,
       })
+
+      const profile = await User.findById(req.params.id)
       return res.status(200).json({
         success: true,
         message: 'update profile successfully',
+        profile,
       })
     } catch (err) {
       return res.status(500).json({
