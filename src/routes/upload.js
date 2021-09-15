@@ -4,6 +4,6 @@ const verifyToken = require('../middlewares/auth')
 
 router.post('/upload', verifyToken, controller.upload)
 
-router.delete('/remove-upload', verifyToken, controller.removeFileUpload)
+router.patch('/remove-upload', verifyToken, controller.removeFileUpload)
 
 module.exports = router

@@ -267,7 +267,10 @@ module.exports.loginWithGG = async (req, res) => {
       const user = new User({
         name,
         email,
-        avatar: picture,
+        avatar: {
+          url: picture,
+          publicId: '',
+        },
         password: hashPassword,
         isVerifiedMail: true,
       })

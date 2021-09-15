@@ -7,8 +7,9 @@ const BackgroundSchema = new Schema({
   },
   url: {
     type: String,
-    default: '',
+    default: `https://n-site.co.uk/wp-content/uploads/2020/03/Default-banner-navy.png`,
   },
+  _id: false,
 })
 
 const AvatarSchema = new Schema({
@@ -20,6 +21,7 @@ const AvatarSchema = new Schema({
     type: String,
     default: `https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS1mIqKy86M1mYgD1hZ87y3cp-86rVWkYWh7Q&usqp=CAU`,
   },
+  _id: false,
 })
 
 const UserSchema = new Schema(
@@ -52,7 +54,7 @@ const UserSchema = new Schema(
     avatar: {
       type: AvatarSchema,
       default: {
-        publicId: '123',
+        publicId: '',
         url: `https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS1mIqKy86M1mYgD1hZ87y3cp-86rVWkYWh7Q&usqp=CAU`,
       },
     },
