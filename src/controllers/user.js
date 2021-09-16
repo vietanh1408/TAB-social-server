@@ -8,6 +8,13 @@ module.exports.getUserProfile = async (req, res) => {
   try {
     const profile = await User.findOne({ _id: req.params.id })
 
+    if (!profile) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+      })
+    }
+
     return res.status(200).json({
       success: true,
       message: 'get your profile successfully',
