@@ -1,13 +1,44 @@
 const Post = require('../models/Post')
+const User = require('../models/User')
 const postValidation = require('../validations/post.create')
 const ObjectId = require('mongodb').ObjectID
 
-// get all post
+class Pagination {
+  constructor(query, queryString) {
+    this.query = query
+    this.queryString = queryString
+  }
+
+  paginating() {
+    const page = this.queryString.page * 1 || 1
+    const limit = this.queryString.limit * 1 || 10
+    const skip = (page - 1) * limit
+    this.query = this.query.skip(skip).limit(limit)
+    return this
+  }
+}
+
+// get all post of friend
 module.exports.index = async (req, res) => {
   try {
-    const posts = await Post.find()
-      .populate('user', ['name', 'avatar'])
+    const currentUser = await User.findOne({ _id: req.userId })
+    const { followings } = currentUser
+
+    const postQuery = new Pagination(
+      Post.find({
+        userId: [...followings, req.userId],
+      }),
+      req.query
+    ).paginating()
+
+    const posts = await postQuery.query
       .sort({ createAt: -1 })
+      .populate('user', 'avatar name')
+    console.log('posts....', posts)
+
+    // const posts = await Post.find()
+    //   .populate('user', 'name')
+    //   .sort({ createAt: -1 })
     return res.status(200).json({
       success: true,
       message: 'get all posts successfully',
@@ -50,25 +81,14 @@ module.exports.getPostById = async (req, res) => {
 
 // create post
 module.exports.createPost = async (req, res) => {
-  const { description, image } = req.body
-
-  // validate create post
-  const { error } = postValidation(req.body)
-  if (error)
-    return res.status(400).json({
-      success: false,
-      message: 'Tạo bài viết thất bại',
-    })
-
   try {
+    const { description, image } = req.body
     const newPost = new Post({
       userId: req.userId,
       description,
       image,
     })
-
     await newPost.save()
-
     return res.status(200).json({
       success: true,
       message: 'create a new post successfully',
@@ -86,7 +106,6 @@ module.exports.createPost = async (req, res) => {
 module.exports.editPost = async (req, res) => {
   try {
     const post = await Post.findById(req.params.id)
-
     if (!post) {
       return res.status(400).json({
         success: false,

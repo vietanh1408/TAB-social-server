@@ -1,4 +1,4 @@
-const { Schema, model } = require('mongoose')
+const { Schema, model, Types } = require('mongoose')
 
 const CommentSchema = new Schema({
   author: {
@@ -10,10 +10,23 @@ const CommentSchema = new Schema({
   },
 })
 
+const ImageSchema = new Schema({
+  publicId: {
+    type: String,
+    default: '',
+  },
+  url: {
+    type: String,
+    default: '',
+  },
+  _id: false,
+})
+
 const PostSchema = new Schema(
   {
     userId: {
-      type: String,
+      type: Types.ObjectId,
+      ref: 'user',
       required: true,
     },
     description: {
@@ -23,13 +36,13 @@ const PostSchema = new Schema(
       default: '',
     },
     image: {
-      type: String,
-      default: '',
+      type: ImageSchema,
+      default: {
+        publicId: '',
+        url: '',
+      },
     },
-    likes: {
-      type: Array,
-      default: [],
-    },
+    likes: [{ type: Types.ObjectId, ref: 'user' }],
     comments: {
       type: [CommentSchema],
       default: [],
@@ -44,4 +57,4 @@ const PostSchema = new Schema(
   }
 )
 
-module.exports = model('posts', PostSchema)
+module.exports = model('post', PostSchema)

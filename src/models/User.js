@@ -120,4 +120,4 @@ const UserSchema = new Schema(
   }
 )
 
-module.exports = model('users', UserSchema)
+module.exports = model('user', UserSchema)

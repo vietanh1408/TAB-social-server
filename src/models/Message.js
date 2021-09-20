@@ -24,4 +24,4 @@ const MessageSchema = new Schema({
   },
 })
 
-module.exports = model('messages', MessageSchema)
+module.exports = model('message', MessageSchema)
