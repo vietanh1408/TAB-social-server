@@ -22,23 +22,20 @@ class Pagination {
 module.exports.index = async (req, res) => {
   try {
     const currentUser = await User.findOne({ _id: req.userId })
-    const { followings } = currentUser
+    const { followings, _id } = currentUser
 
+    // get post of followings
     const postQuery = new Pagination(
       Post.find({
-        userId: [...followings, req.userId],
+        user: [...followings, _id],
       }),
       req.query
     ).paginating()
 
     const posts = await postQuery.query
       .sort({ createAt: -1 })
-      .populate('user', 'avatar name')
-    console.log('posts....', posts)
+      .populate('user', 'name avatar')
 
-    // const posts = await Post.find()
-    //   .populate('user', 'name')
-    //   .sort({ createAt: -1 })
     return res.status(200).json({
       success: true,
       message: 'get all posts successfully',
@@ -84,7 +81,7 @@ module.exports.createPost = async (req, res) => {
   try {
     const { description, image } = req.body
     const newPost = new Post({
-      userId: req.userId,
+      user: req.userId,
       description,
       image,
     })

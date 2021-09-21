@@ -24,7 +24,7 @@ const ImageSchema = new Schema({
 
 const PostSchema = new Schema(
   {
-    userId: {
+    user: {
       type: Types.ObjectId,
       ref: 'user',
       required: true,
