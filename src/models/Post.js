@@ -47,10 +47,9 @@ const PostSchema = new Schema(
       type: [CommentSchema],
       default: [],
     },
-    createdAt: {
-      type: Date,
-      default: Date.now(),
-    },
+  },
+  {
+    timestamps: true,
   },
   {
     versionKey: false,

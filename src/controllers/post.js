@@ -33,7 +33,7 @@ module.exports.index = async (req, res) => {
     ).paginating()
 
     const posts = await postQuery.query
-      .sort({ createAt: -1 })
+      .sort({ createdAt: -1 })
       .populate('user', 'name avatar')
 
     return res.status(200).json({
