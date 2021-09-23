@@ -10,6 +10,7 @@ const {
 } = require('../helpers/generateToken')
 
 const { google } = require('googleapis')
+const { findById } = require('../models/User')
 const { OAuth2 } = google.auth
 
 const client = new OAuth2(process.env.GOOGLE_CLIENT_ID)
@@ -40,25 +41,33 @@ module.exports.checkAuth = async (req, res) => {
 // CHECK VERIFY CODE
 module.exports.checkVerify = async (req, res) => {
   try {
-    const isMatchCode = await User.findOne({
-      verifyCode: req.body.code,
-      _id: req.userId,
-    })
+    // const correctUser = await User.findOne({
+    //   verifyCode: req.body.code,
+    //   _id: req.userId,
+    // })
 
-    if (!isMatchCode) {
+    const correctUser = await User.findOneAndUpdate(
+      {
+        verifyCode: req.body.code,
+        _id: req.userId,
+      },
+      { $set: { isVerifiedMail: true } }
+    )
+
+    if (!correctUser) {
       return res.status(400).json({
         success: false,
         message: 'Code is invalid',
         isVerify: false,
       })
     }
-
-    await User.findByIdAndUpdate(req.userId, { $set: { isVerifiedMail: true } })
+    const user = await User.findById({ _id: req.userId })
 
     return res.status(200).json({
       success: true,
       message: 'Verify email success',
       isVerify: true,
+      user,
     })
   } catch (err) {
     return res.status(500).json({
