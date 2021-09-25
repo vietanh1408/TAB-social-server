@@ -206,7 +206,7 @@ module.exports.sendFriendRequest = async (req, res) => {
 module.exports.acceptFriendRequest = async (req, res) => {
   try {
     // delete in friendRequest and add to friends
-    await User.updateMany(
+    const user = await User.findOneAndUpdate(
       { _id: ObjectId(req.userId) },
       {
         $addToSet: {
@@ -215,11 +215,12 @@ module.exports.acceptFriendRequest = async (req, res) => {
           followers: req.body.friendId,
         },
         $pull: { friendRequests: req.body.friendId },
-      }
+      },
+      { new: true }
     )
 
     // add friends
-    await User.updateMany(
+    await User.findOneAndUpdate(
       { _id: ObjectId(req.body.friendId) },
       {
         $addToSet: {
@@ -234,6 +235,7 @@ module.exports.acceptFriendRequest = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: 'add friend successfully',
+      user,
     })
   } catch (err) {
     return res.status(500).json({
@@ -246,7 +248,7 @@ module.exports.acceptFriendRequest = async (req, res) => {
 // unfriend
 module.exports.unFriend = async (req, res) => {
   try {
-    await User.updateMany(
+    const user = await User.findOneAndUpdate(
       { _id: ObjectId(req.userId) },
       {
         $pull: {
@@ -254,9 +256,10 @@ module.exports.unFriend = async (req, res) => {
           followers: req.body.friendId,
           followings: req.body.friendId,
         },
-      }
+      },
+      { new: true }
     )
-    await User.updateMany(
+    await User.findOneAndUpdate(
       { _id: ObjectId(req.body.friendId) },
       {
         $pull: {
@@ -269,6 +272,73 @@ module.exports.unFriend = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: 'unfriend successfully',
+      user,
+    })
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: 'server error',
+    })
+  }
+}
+
+// follow
+module.exports.follow = async (req, res) => {
+  try {
+    const user = await User.findOneAndUpdate(
+      { _id: ObjectId(req.userId) },
+      {
+        $addToSet: {
+          followings: req.body.friendId,
+        },
+      },
+      { new: true }
+    )
+    await User.findOneAndUpdate(
+      { _id: ObjectId(req.body.friendId) },
+      {
+        $addToSet: {
+          followers: req.userId,
+        },
+      }
+    )
+    return res.status(200).json({
+      success: true,
+      message: 'follow successfully',
+      user,
+    })
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: 'server error',
+    })
+  }
+}
+
+// follow
+module.exports.unfollow = async (req, res) => {
+  try {
+    const user = await User.findOneAndUpdate(
+      { _id: ObjectId(req.userId) },
+      {
+        $pull: {
+          followings: req.body.friendId,
+        },
+      },
+      { new: true }
+    )
+    await User.findOneAndUpdate(
+      { _id: ObjectId(req.body.friendId) },
+      {
+        $pull: {
+          followers: req.userId,
+        },
+      }
+    )
+    return res.status(200).json({
+      success: true,
+      message: 'unfollow successfully',
+      user,
     })
   } catch (err) {
     return res.status(500).json({

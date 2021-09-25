@@ -23,7 +23,13 @@ router.put(
 router.get('/friends', verifyToken, controller.getAllFriend)
 
 // unfriend
-router.delete('/unfriend', verifyToken, controller.unFriend)
+router.put('/unfriend', verifyToken, controller.unFriend)
+
+// follow
+router.put('/follow', verifyToken, controller.follow)
+
+// unfollow
+router.put('/unfollow', verifyToken, controller.unfollow)
 
 // eidt profile
 router.put('/edit/:id', verifyToken, controller.editProfile)
