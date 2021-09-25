@@ -41,17 +41,13 @@ module.exports.checkAuth = async (req, res) => {
 // CHECK VERIFY CODE
 module.exports.checkVerify = async (req, res) => {
   try {
-    // const correctUser = await User.findOne({
-    //   verifyCode: req.body.code,
-    //   _id: req.userId,
-    // })
-
     const correctUser = await User.findOneAndUpdate(
       {
         verifyCode: req.body.code,
         _id: req.userId,
       },
-      { $set: { isVerifiedMail: true } }
+      { $set: { isVerifiedMail: true } },
+      { new: true }
     )
 
     if (!correctUser) {
@@ -61,13 +57,12 @@ module.exports.checkVerify = async (req, res) => {
         isVerify: false,
       })
     }
-    const user = await User.findById({ _id: req.userId })
 
     return res.status(200).json({
       success: true,
       message: 'Verify email success',
       isVerify: true,
-      user,
+      user: correctUser,
     })
   } catch (err) {
     return res.status(500).json({

@@ -108,11 +108,15 @@ module.exports.editProfile = async (req, res) => {
         const salt = await bcrypt.genSalt(10)
         req.body.datapassword = await bcrypt.hash(req.body.data.password, salt)
       }
-      await User.findByIdAndUpdate(req.params.id, {
-        $set: req.body.data,
-      })
-
-      const profile = await User.findById(req.params.id)
+      const profile = await User.findByIdAndUpdate(
+        req.params.id,
+        {
+          $set: req.body.data,
+        },
+        {
+          new: true,
+        }
+      )
       return res.status(200).json({
         success: true,
         message: 'update profile successfully',
@@ -161,36 +165,34 @@ module.exports.sendFriendRequest = async (req, res) => {
         message: 'You cant send friend request your self',
       })
     }
-    const profile = await User.findById(req.userId)
-    const friend = await User.findById(req.body.friendId)
 
-    if (!profile || !friend) {
-      return res.status(400).json({
-        success: false,
-        message: 'User not found',
-      })
-    }
+    // user1(you) => add user2 to sendFriendRequests and followings
+    const currentUser = await User.findOneAndUpdate(
+      { _id: req.userId },
+      {
+        $addToSet: {
+          sendFriendRequests: req.body.friendId,
+          followings: req.body.friendId,
+        },
+      },
+      { new: true }
+    )
 
-    // add to DB
-    if (profile.sendFriendRequests.includes(req.body.friendId)) {
-      return res.status(400).json({
-        success: false,
-        message: 'You have already send friend request',
-      })
-    } else {
-      await User.findByIdAndUpdate(req.userId, {
-        $push: { sendFriendRequests: req.body.friendId },
-      })
-    }
-
-    // send friend request to friend
-    await User.findByIdAndUpdate(req.body.friendId, {
-      $push: { friendRequests: req.userId },
-    })
+    // user2 ==> add user1 to friendRequests and followers
+    await User.findOneAndUpdate(
+      { _id: req.body.friendId },
+      {
+        $addToSet: {
+          friendRequests: req.userId,
+          followers: req.userId,
+        },
+      }
+    )
 
     return res.status(200).json({
       success: true,
       message: 'Send Friend Request successfully',
+      user: currentUser,
     })
   } catch (err) {
     return res.status(500).json({
