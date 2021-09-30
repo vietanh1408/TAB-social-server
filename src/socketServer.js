@@ -36,50 +36,9 @@ module.exports.SocketServer = (socket) => {
       })
     }
   })
+
+  // notification when send friend request
+  // socket.on('sendFriendRequest', request => {
+  //   const
+  // })
 }
-
-// io.on("connection", (socket) => {
-//   // user connect
-
-//   // user disconnect
-//   socket.on("disconnect", () => {
-//     console.log(socket.id, "đã ngắt kết nối");
-//   });
-
-//   // user online
-//   socket.on("online", (data) => {
-//     console.log(`${data.user} đang online`);
-//     socket.broadcast.emit("online", {
-//       user: data.user,
-//     });
-//   });
-
-//   // someone typing ...
-//   socket.on("typing", (data) => {
-//     console.log(`${data.user} đang gõ ...`);
-//     socket.broadcast.emit("notifyTyping", {
-//       user: data.user,
-//       message: data.message,
-//     });
-//   });
-
-//   // when someone stop typing
-//   socket.on("stopTyping", () => {
-//     socket.broadcast.emit("notifyStopTyping");
-//   });
-
-//   // chat
-//   socket.on("chat message", (msg) => {
-//     // broadcast message to everyone, except you
-//     socket.broadcast.emit("received", { message: msg });
-
-//     // save chat to DB
-//     let chatMessage = new Message({
-//       message: msg,
-//       senderId: "123",
-//       receiverId: "456",
-//     });
-
-//     chatMessage.save();
-//   });
-// });

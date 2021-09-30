@@ -17,6 +17,7 @@ const authRoute = require('./routes/auth')
 const postRoute = require('./routes/post')
 const userRoute = require('./routes/user')
 const uploadRoute = require('./routes/upload')
+const notificationRoute = require('./routes/notification')
 
 // app use
 app.use(express.json({ limit: '50mb' }))
@@ -33,6 +34,7 @@ app.use(
 app.use('/api/auth', authRoute)
 app.use('/api/posts', postRoute)
 app.use('/api/user', userRoute)
+app.use('/api/notification', notificationRoute)
 app.use('/api/', uploadRoute)
 
 // connect mongoDB
