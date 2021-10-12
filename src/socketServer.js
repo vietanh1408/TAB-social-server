@@ -41,4 +41,9 @@ module.exports.SocketServer = (socket) => {
   // socket.on('sendFriendRequest', request => {
   //   const
   // })
+
+  // like post
+  socket.on('likePost', (user) => {
+    console.log('user like post....', user.name)
+  })
 }

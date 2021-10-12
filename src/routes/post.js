@@ -13,13 +13,13 @@ router.post('/create', verifyToken, controller.createPost)
 router.post('/like', verifyToken, controller.likeAPost)
 
 // dislike a post
-router.delete('/dislike', verifyToken, controller.dislikeAPost)
+router.post('/dislike', verifyToken, controller.dislikeAPost)
 
 // comment a post
 router.post('/comment', verifyToken, controller.commentAPost)
 
 // delete a comment
-router.delete('/remove-comment', verifyToken, controller.removeComment)
+router.post('/remove-comment', verifyToken, controller.removeComment)
 
 // edit post
 router.put('/edit/:id', verifyToken, controller.editPost)

@@ -1,6 +1,5 @@
 const Post = require('../models/Post')
 const User = require('../models/User')
-const postValidation = require('../validations/post.create')
 const ObjectId = require('mongodb').ObjectID
 
 class Pagination {
