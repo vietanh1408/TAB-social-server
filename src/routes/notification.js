@@ -3,6 +3,9 @@ const router = express.Router()
 const controller = require('../controllers/notification')
 const verifyToken = require('../middlewares/auth')
 
+// get notification
+router.get('/', verifyToken, controller.getNotification)
+
 // create notification
 router.post('/notify', verifyToken, controller.createNotification)
 

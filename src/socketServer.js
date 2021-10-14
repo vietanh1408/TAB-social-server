@@ -42,8 +42,17 @@ module.exports.SocketServer = (socket) => {
   //   const
   // })
 
-  // like post
-  socket.on('likePost', (user) => {
-    console.log('user like post....', user.name)
+  // lang nghe su kien likePost => gui thong bao
+  socket.on('likePost', (notification) => {
+    console.log('notification socket....', notification)
+    const ids = [...notification.user, notification.receivers]
+    const clients = users.filter((user) => ids.includes(user.id))
+    if (clients.length > 0) {
+      clients.forEach((client) => {
+        socket
+          .to(`${client.socketId}`)
+          .emit('sendNotificationLikePost', notification)
+      })
+    }
   })
 }

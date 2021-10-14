@@ -85,10 +85,14 @@ module.exports.createPost = async (req, res) => {
       image,
     })
     await newPost.save()
+    const post = await Post.findOne({ _id: newPost._id }).populate('user', [
+      'name',
+      'avatar',
+    ])
     return res.status(200).json({
       success: true,
       message: 'create a new post successfully',
-      post: newPost,
+      post: post,
     })
   } catch (err) {
     return res.status(500).json({

@@ -15,14 +15,23 @@ const ImageSchema = new Schema({
 const NotificationSchema = new Schema(
   {
     id: Types.ObjectId,
-    user: {
+    sender: {
       type: Types.ObjectId,
       ref: 'user',
     },
     receivers: [Types.ObjectId],
-    url: String,
-    text: String,
-    content: String,
+    url: {
+      type: String,
+      default: '',
+    },
+    text: {
+      type: String,
+      default: '',
+    },
+    content: {
+      type: String,
+      default: '',
+    },
     image: {
       type: ImageSchema,
       default: {
