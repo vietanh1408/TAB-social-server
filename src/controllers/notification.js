@@ -3,6 +3,11 @@ const ObjectId = require('mongodb').ObjectID
 
 module.exports.createNotification = async (req, res) => {
   try {
+    // check duplicate notification
+    await Notification.findOneAndDelete({
+      text: req.body.text,
+    })
+
     const newNotification = new Notification({
       sender: req.userId,
       receivers: [req.body.receivers],
@@ -35,7 +40,9 @@ module.exports.getNotification = async (req, res) => {
   try {
     const notifications = await Notification.find({
       receivers: ObjectId(req.userId),
-    }).populate('sender', ['name', 'avatar'])
+    })
+      .sort({ createdAt: -1 })
+      .populate('sender', ['name', 'avatar'])
     const notificationCount = await Notification.countDocuments({
       receivers: ObjectId(req.userId),
     })

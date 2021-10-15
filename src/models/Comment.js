@@ -7,10 +7,10 @@ const commentSchema = new mongoose.Schema(
       required: true,
     },
     tag: Object,
-    reply: mongoose.Types.ObjectId,
+    reply: { type: mongoose.Types.ObjectId, ref: 'user' },
     likes: [{ type: mongoose.Types.ObjectId, ref: 'user' }],
     user: { type: mongoose.Types.ObjectId, ref: 'user' },
-    postId: mongoose.Types.ObjectId,
+    postId: { type: mongoose.Types.ObjectId, ref: 'post' },
     postUserId: mongoose.Types.ObjectId,
   },
   {

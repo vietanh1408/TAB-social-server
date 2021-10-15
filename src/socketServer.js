@@ -37,14 +37,22 @@ module.exports.SocketServer = (socket) => {
     }
   })
 
-  // notification when send friend request
-  // socket.on('sendFriendRequest', request => {
-  //   const
-  // })
+  // lang nghe su kien sendFriendRequest
+  socket.on('sendFriendRequest', (notification) => {
+    console.log('notification sendFriendRequest...', notification)
+    const ids = [...notification.user, notification.receivers]
+    const clients = users.filter((user) => ids.includes(user.id))
+    if (clients.length > 0) {
+      clients.forEach((client) => {
+        socket
+          .to(`${client.socketId}`)
+          .emit('receiveFriendRequest', notification)
+      })
+    }
+  })
 
   // lang nghe su kien likePost => gui thong bao
   socket.on('likePost', (notification) => {
-    console.log('notification socket....', notification)
     const ids = [...notification.user, notification.receivers]
     const clients = users.filter((user) => ids.includes(user.id))
     if (clients.length > 0) {
