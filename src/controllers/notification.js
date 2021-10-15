@@ -45,6 +45,7 @@ module.exports.getNotification = async (req, res) => {
       .populate('sender', ['name', 'avatar'])
     const notificationCount = await Notification.countDocuments({
       receivers: ObjectId(req.userId),
+      isRead: false,
     })
     return res.status(200).json({
       success: true,

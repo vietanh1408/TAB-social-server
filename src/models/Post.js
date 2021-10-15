@@ -1,15 +1,5 @@
 const { Schema, model, Types } = require('mongoose')
 
-const CommentSchema = new Schema({
-  author: {
-    type: String,
-    required: true,
-  },
-  detail: {
-    type: String,
-  },
-})
-
 const ImageSchema = new Schema({
   publicId: {
     type: String,
@@ -43,10 +33,7 @@ const PostSchema = new Schema(
       },
     },
     likes: [{ type: Types.ObjectId, ref: 'user' }],
-    comments: {
-      type: [CommentSchema],
-      default: [],
-    },
+    comments: [{ type: Types.ObjectId, ref: 'comment' }],
   },
   {
     timestamps: true,

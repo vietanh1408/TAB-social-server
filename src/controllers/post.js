@@ -1,5 +1,6 @@
 const Post = require('../models/Post')
 const User = require('../models/User')
+const Comment = require('../models/Comment')
 const ObjectId = require('mongodb').ObjectID
 
 class Pagination {
@@ -52,10 +53,9 @@ module.exports.index = async (req, res) => {
 module.exports.getPostById = async (req, res) => {
   try {
     const id = ObjectId(req.params.id)
-    const post = await Post.findOne({ _id: id }).populate('user', [
-      'name',
-      'avatar',
-    ])
+    const post = await Post.findOne({ _id: id })
+      .populate('user', ['name', 'avatar'])
+      .populate('comment')
     if (!post) {
       return res.status(400).json({
         success: false,
@@ -113,19 +113,12 @@ module.exports.editPost = async (req, res) => {
       })
     }
     // check own post
-    if (post.userId === req.userId) {
-      try {
-        await Post.findByIdAndUpdate(req.params.id, { $set: req.body })
-        return res.status(200).json({
-          success: true,
-          message: 'Update post successfully',
-        })
-      } catch (err) {
-        return res.status(500).json({
-          success: false,
-          message: 'Internal server error',
-        })
-      }
+    if (post.user === req.userId) {
+      await Post.findByIdAndUpdate(req.params.id, { $set: req.body })
+      return res.status(200).json({
+        success: true,
+        message: 'Update post successfully',
+      })
     } else {
       return res.status(400).json({
         success: false,
@@ -144,7 +137,6 @@ module.exports.editPost = async (req, res) => {
 module.exports.deletePost = async (req, res) => {
   try {
     const post = await Post.findById(req.params.id)
-
     if (!post) {
       return res.status(400).json({
         success: false,
@@ -152,19 +144,13 @@ module.exports.deletePost = async (req, res) => {
       })
     }
     // check own post
-    if (post.userId === req.userId) {
-      try {
-        await Post.findByIdAndDelete(req.params.id)
-        return res.status(200).json({
-          success: true,
-          message: 'Delete post successfully',
-        })
-      } catch (err) {
-        return res.status(500).json({
-          success: false,
-          message: 'Internal server error',
-        })
-      }
+    if (post.user == req.userId) {
+      await Post.findByIdAndDelete({ _id: req.params.id })
+      return res.status(200).json({
+        success: true,
+        message: 'Delete post successfully',
+        postId: req.params.id,
+      })
     } else {
       return res.status(400).json({
         success: false,
@@ -192,7 +178,6 @@ module.exports.likeAPost = async (req, res) => {
         },
       }
     )
-
     return res.status(200).json({
       success: true,
       message: 'Like this post successfully',
@@ -216,7 +201,6 @@ module.exports.dislikeAPost = async (req, res) => {
         $pull: { likes: req.userId },
       }
     )
-
     return res.status(200).json({
       success: true,
       message: 'dislike this post successfully',
@@ -232,21 +216,47 @@ module.exports.dislikeAPost = async (req, res) => {
 // comment a post
 module.exports.commentAPost = async (req, res) => {
   try {
-    await Post.updateMany(
-      { _id: ObjectId(req.body.postId) },
+    const { postId, comment, authorId } = req.body
+    const newComment = new Comment({
+      content: comment,
+      user: req.userId,
+      postId,
+      postUserId: authorId,
+    })
+
+    console.log('newComment1....', newComment)
+
+    await newComment.save()
+
+    console.log('run...')
+
+    await Post.findByIdAndUpdate(
+      { _id: postId },
       {
-        $push: {
-          comments: {
-            author: req.userId,
-            detail: req.body.comment,
-          },
+        $addToSet: {
+          comments: newComment._id,
         },
       }
     )
 
+    console.log('newComment....', newComment)
+
+    // await Post.updateMany(
+    //   { _id: ObjectId(req.body.postId) },
+    //   {
+    //     $push: {
+    //       comments: {
+    //         author: req.userId,
+    //         detail: req.body.comment,
+    //       },
+    //     },
+    //   }
+    // )
+
     return res.status(200).json({
       success: true,
       message: 'comment this post successfully',
+      comment: newComment,
     })
   } catch (err) {
     return res.status(500).json({
