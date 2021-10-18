@@ -224,39 +224,20 @@ module.exports.commentAPost = async (req, res) => {
       postUserId: authorId,
     })
 
-    console.log('newComment1....', newComment)
-
     await newComment.save()
 
-    console.log('run...')
+    const commentLength = await Comment.countDocuments({ postId: postId })
 
     await Post.findByIdAndUpdate(
       { _id: postId },
-      {
-        $addToSet: {
-          comments: newComment._id,
-        },
-      }
+      { commentLength: commentLength }
     )
-
-    console.log('newComment....', newComment)
-
-    // await Post.updateMany(
-    //   { _id: ObjectId(req.body.postId) },
-    //   {
-    //     $push: {
-    //       comments: {
-    //         author: req.userId,
-    //         detail: req.body.comment,
-    //       },
-    //     },
-    //   }
-    // )
 
     return res.status(200).json({
       success: true,
       message: 'comment this post successfully',
       comment: newComment,
+      postId: postId,
     })
   } catch (err) {
     return res.status(500).json({
@@ -301,6 +282,42 @@ module.exports.removeComment = async (req, res) => {
       })
     }
   } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: 'server error',
+    })
+  }
+}
+
+// get comment by post id
+module.exports.getCommentById = async (req, res) => {
+  try {
+    const currentPost = await Post.findById(req.params.id)
+    if (!currentPost) {
+      return res.status(400).json({
+        success: false,
+        message: 'This post not exist',
+      })
+    }
+
+    const commentList = await Comment.find({ postId: req.params.id })
+      .sort({ createdAt: -1 })
+      .populate('user', ['name', 'avatar', '_id'])
+
+    if (!commentList) {
+      return res.status(400).json({
+        success: false,
+        message: 'This post not exist',
+      })
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'Get comment by post id success',
+      comments: commentList,
+      postId: currentPost._id,
+    })
+  } catch (error) {
     return res.status(500).json({
       success: false,
       message: 'server error',

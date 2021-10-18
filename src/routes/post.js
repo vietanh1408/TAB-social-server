@@ -21,6 +21,9 @@ router.post('/comment', verifyToken, controller.commentAPost)
 // delete a comment
 router.post('/remove-comment', verifyToken, controller.removeComment)
 
+// get comment by post id
+router.get('/comments/:id', verifyToken, controller.getCommentById)
+
 // edit post
 router.put('/edit/:id', verifyToken, controller.editPost)
 

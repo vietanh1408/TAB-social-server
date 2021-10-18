@@ -33,7 +33,14 @@ const PostSchema = new Schema(
       },
     },
     likes: [{ type: Types.ObjectId, ref: 'user' }],
-    comments: [{ type: Types.ObjectId, ref: 'comment' }],
+    likeLength: {
+      type: Number,
+      default: 0,
+    },
+    commentLength: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true,
