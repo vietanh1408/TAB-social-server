@@ -22,12 +22,12 @@ module.exports.checkAuth = async (req, res) => {
     if (!user) {
       return res.status(400).json({
         success: false,
-        message: 'Not found user',
+        message: 'Người dùng không tồn tại',
       })
     }
     return res.status(200).json({
       success: true,
-      message: 'authenticated',
+      message: 'Vui lòng đăng nhập để tiếp tục',
       user: user,
     })
   } catch (error) {
@@ -53,14 +53,14 @@ module.exports.checkVerify = async (req, res) => {
     if (!correctUser) {
       return res.status(400).json({
         success: false,
-        message: 'Code is invalid',
+        message: 'Mã code không hợp lêk',
         isVerify: false,
       })
     }
 
     return res.status(200).json({
       success: true,
-      message: 'Verify email success',
+      message: 'Xác minh thành công',
       isVerify: true,
       user: correctUser,
     })
@@ -79,7 +79,7 @@ module.exports.register = async (req, res) => {
   if (emailExist) {
     return res.status(400).json({
       success: false,
-      message: 'Email address already exists',
+      message: 'Email đã được đăng ký',
     })
   }
   // check phone number
@@ -87,7 +87,7 @@ module.exports.register = async (req, res) => {
   if (phoneExist) {
     return res.status(400).json({
       success: false,
-      message: 'phone number already used',
+      message: 'Số diện thoại đã được đăng ký',
     })
   }
   // hash password
@@ -138,7 +138,7 @@ module.exports.register = async (req, res) => {
       )
       return res.status(200).json({
         success: true,
-        message: 'send mail success',
+        message: 'Gửi mail thành công',
         accessToken,
         user: newUser,
       })
@@ -184,7 +184,7 @@ module.exports.login = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: 'Login successfully',
+      message: 'Đăng nhập thành công',
       accessToken,
       user,
     })
@@ -202,7 +202,7 @@ module.exports.logout = async (req, res) => {
     res.clearCookie('refreshToken', { path: '/api/auth/refresh-token' })
     return res.status(200).json({
       success: true,
-      message: 'Logout successfully',
+      message: 'Đăng xuất thành công',
     })
   } catch (err) {
     return res.status(500).json({
@@ -262,7 +262,7 @@ module.exports.loginWithGG = async (req, res) => {
       )
       return res.status(200).json({
         success: true,
-        message: 'Login successfully',
+        message: 'Đăng nhập thành công',
         accessToken,
         user,
       })
@@ -286,7 +286,7 @@ module.exports.loginWithGG = async (req, res) => {
       )
       return res.status(200).json({
         success: true,
-        message: 'Login Google success',
+        message: 'Đăng nhập với tài khoản Google thành công',
         accessToken,
         user: newUser,
       })

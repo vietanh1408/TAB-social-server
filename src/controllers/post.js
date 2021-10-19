@@ -2,6 +2,7 @@ const Post = require('../models/Post')
 const User = require('../models/User')
 const Comment = require('../models/Comment')
 const ObjectId = require('mongodb').ObjectID
+const { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_INDEX } = require('../constants/index')
 
 class Pagination {
   constructor(query, queryString) {
@@ -10,8 +11,8 @@ class Pagination {
   }
 
   paginating() {
-    const page = this.queryString.page * 1 || 1
-    const limit = this.queryString.limit * 1 || 10
+    const page = this.queryString.page * 1 || DEFAULT_PAGE_INDEX
+    const limit = this.queryString.limit * 1 || DEFAULT_PAGE_SIZE
     const skip = (page - 1) * limit
     this.query = this.query.skip(skip).limit(limit)
     return this
@@ -59,7 +60,7 @@ module.exports.getPostById = async (req, res) => {
     if (!post) {
       return res.status(400).json({
         success: false,
-        message: 'Post not found',
+        message: 'Bài viết không tồn tại',
       })
     }
     return res.status(200).json({
@@ -109,7 +110,7 @@ module.exports.editPost = async (req, res) => {
     if (!post) {
       return res.status(400).json({
         success: false,
-        message: 'Post not found',
+        message: 'Không tìm thấy bài viết',
       })
     }
     // check own post
@@ -122,7 +123,7 @@ module.exports.editPost = async (req, res) => {
     } else {
       return res.status(400).json({
         success: false,
-        message: 'You only can edit your post',
+        message: 'Bạn chỉ có thể chỉnh sửa bài viết của bạn',
       })
     }
   } catch (err) {
@@ -140,7 +141,7 @@ module.exports.deletePost = async (req, res) => {
     if (!post) {
       return res.status(400).json({
         success: false,
-        message: 'Post not found',
+        message: 'Không tìm thấy bài viết',
       })
     }
     // check own post
@@ -154,7 +155,7 @@ module.exports.deletePost = async (req, res) => {
     } else {
       return res.status(400).json({
         success: false,
-        message: 'You only can edit your post',
+        message: 'Bạn chỉ có thể xóa bài viết của bạn',
       })
     }
   } catch (err) {
@@ -228,15 +229,15 @@ module.exports.commentAPost = async (req, res) => {
 
     const commentLength = await Comment.countDocuments({ postId: postId })
 
-    await Post.findByIdAndUpdate(
+    const currentPost = await Post.findByIdAndUpdate(
       { _id: postId },
       { commentLength: commentLength }
-    )
+    ).populate('user', ['name', 'avatar', '_id'])
 
     return res.status(200).json({
       success: true,
       message: 'comment this post successfully',
-      comment: newComment,
+      comment: Object.assign(newComment, { user: currentPost.user }),
       postId: postId,
     })
   } catch (err) {
@@ -300,7 +301,12 @@ module.exports.getCommentById = async (req, res) => {
       })
     }
 
-    const commentList = await Comment.find({ postId: req.params.id })
+    const commentQuery = new Pagination(
+      Comment.find({ postId: req.params.id }),
+      req.query
+    ).paginating()
+
+    const commentList = await commentQuery.query
       .sort({ createdAt: -1 })
       .populate('user', ['name', 'avatar', '_id'])
 

@@ -25,7 +25,7 @@ module.exports.createNotification = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: 'OK',
+      message: 'Tạo thông báo thành công',
       notification,
     })
   } catch (error) {
@@ -49,7 +49,7 @@ module.exports.getNotification = async (req, res) => {
     })
     return res.status(200).json({
       success: true,
-      message: 'Lay thong bao thanh cong',
+      message: 'Lấy thông báo thành công',
       notifications,
       notificationCount,
     })
