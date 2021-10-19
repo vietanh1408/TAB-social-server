@@ -37,10 +37,13 @@ module.exports.index = async (req, res) => {
       .sort({ createdAt: -1 })
       .populate('user', 'name avatar')
 
+    const postLength = await Post.countDocuments({ user: [...followings, _id] })
+
     return res.status(200).json({
       success: true,
       message: 'get all posts successfully',
       posts: posts,
+      postLength,
     })
   } catch (err) {
     return res.status(500).json({
