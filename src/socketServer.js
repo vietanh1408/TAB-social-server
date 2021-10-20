@@ -12,7 +12,6 @@ module.exports.SocketServer = (socket) => {
   })
   // Disconnect socket
   socket.on('disconnect', () => {
-    console.log(socket.id, ' disconnected')
     users = users.filter((user) => user.socketId !== socket.id)
   })
 
@@ -30,9 +29,7 @@ module.exports.SocketServer = (socket) => {
 
     if (followers.length > 0) {
       followers.forEach((follower) => {
-        socket
-          .to(`${follower.socketId}`)
-          .emit('checkUserOnlineToClient', data._id)
+        socket.to(`${follower.socketId}`).emit('checkUserOnlineToClient', data)
       })
     }
   })
