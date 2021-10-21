@@ -1,7 +1,9 @@
+const { CHARACTERS } = require('../constants')
+
 module.exports.generateCode = (length) => {
   let result = ''
-  let characters =
-    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+  let characters = CHARACTERS
+
   let charactersLength = characters.length
   for (let i = 0; i < length; i++) {
     result += characters

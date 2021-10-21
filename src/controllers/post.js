@@ -1,8 +1,15 @@
+// libs
+const ObjectId = require('mongodb').ObjectID
+// models
 const Post = require('../models/Post')
 const User = require('../models/User')
 const Comment = require('../models/Comment')
-const ObjectId = require('mongodb').ObjectID
-const { DEFAULT_PAGE_SIZE, DEFAULT_PAGE_INDEX } = require('../constants/index')
+// constants
+const {
+  DEFAULT_PAGE_SIZE,
+  DEFAULT_PAGE_INDEX,
+  messages,
+} = require('../constants/index')
 
 class Pagination {
   constructor(query, queryString) {
@@ -41,14 +48,14 @@ module.exports.index = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: 'get all posts successfully',
+      message: messages.SUCCESS,
       posts: posts,
       postLength,
     })
   } catch (err) {
     return res.status(500).json({
       success: false,
-      message: 'server error',
+      message: messages.SERVER_ERROR,
     })
   }
 }
@@ -63,18 +70,18 @@ module.exports.getPostById = async (req, res) => {
     if (!post) {
       return res.status(400).json({
         success: false,
-        message: 'Bài viết không tồn tại',
+        message: messages.POST_NOT_EXIST,
       })
     }
     return res.status(200).json({
       success: true,
-      message: 'get post by id successfully',
+      message: messages.SUCCESS,
       post: post,
     })
   } catch (err) {
     return res.status(500).json({
       success: false,
-      message: 'server error',
+      message: messages.SERVER_ERROR,
     })
   }
 }
@@ -95,13 +102,13 @@ module.exports.createPost = async (req, res) => {
     ])
     return res.status(200).json({
       success: true,
-      message: 'create a new post successfully',
+      message: messages.CREATE_SUCCESS,
       post: post,
     })
   } catch (err) {
     return res.status(500).json({
       success: false,
-      message: 'server error',
+      message: messages.SERVER_ERROR,
     })
   }
 }
@@ -113,7 +120,7 @@ module.exports.editPost = async (req, res) => {
     if (!post) {
       return res.status(400).json({
         success: false,
-        message: 'Không tìm thấy bài viết',
+        message: messages.POST_NOT_EXIST,
       })
     }
     // check own post
@@ -121,18 +128,18 @@ module.exports.editPost = async (req, res) => {
       await Post.findByIdAndUpdate(req.params.id, { $set: req.body })
       return res.status(200).json({
         success: true,
-        message: 'Update post successfully',
+        message: messages.UPDATE_SUCCESS,
       })
     } else {
       return res.status(400).json({
         success: false,
-        message: 'Bạn chỉ có thể chỉnh sửa bài viết của bạn',
+        message: messages.CAN_UPDATE_YOUR_POST,
       })
     }
   } catch (err) {
     return res.status(500).json({
       success: false,
-      message: 'server error',
+      message: messages.SERVER_ERROR,
     })
   }
 }
@@ -144,7 +151,7 @@ module.exports.deletePost = async (req, res) => {
     if (!post) {
       return res.status(400).json({
         success: false,
-        message: 'Không tìm thấy bài viết',
+        message: messages.POST_NOT_EXIST,
       })
     }
     // check own post
@@ -152,19 +159,19 @@ module.exports.deletePost = async (req, res) => {
       await Post.findByIdAndDelete({ _id: req.params.id })
       return res.status(200).json({
         success: true,
-        message: 'Delete post successfully',
+        message: messages.DELETE_SUCCESS,
         postId: req.params.id,
       })
     } else {
       return res.status(400).json({
         success: false,
-        message: 'Bạn chỉ có thể xóa bài viết của bạn',
+        message: messages.CAN_UPDATE_YOUR_POST,
       })
     }
   } catch (err) {
     return res.status(500).json({
       success: false,
-      message: 'server error',
+      message: messages.SERVER_ERROR,
     })
   }
 }
@@ -184,12 +191,12 @@ module.exports.likeAPost = async (req, res) => {
     )
     return res.status(200).json({
       success: true,
-      message: 'Like this post successfully',
+      message: messages.SUCCESS,
     })
   } catch (err) {
     return res.status(500).json({
       success: false,
-      message: 'server error',
+      message: messages.SERVER_ERROR,
     })
   }
 }
@@ -207,12 +214,12 @@ module.exports.dislikeAPost = async (req, res) => {
     )
     return res.status(200).json({
       success: true,
-      message: 'dislike this post successfully',
+      message: messages.SUCCESS,
     })
   } catch (err) {
     return res.status(500).json({
       success: false,
-      message: 'server error',
+      message: messages.SERVER_ERROR,
     })
   }
 }
@@ -239,14 +246,14 @@ module.exports.commentAPost = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: 'comment this post successfully',
+      message: messages.SUCCESS,
       comment: Object.assign(newComment, { user: currentPost.user }),
       postId: postId,
     })
   } catch (err) {
     return res.status(500).json({
       success: false,
-      message: 'server error',
+      message: messages.SERVER_ERROR,
     })
   }
 }
@@ -276,19 +283,19 @@ module.exports.removeComment = async (req, res) => {
 
       return res.status(200).json({
         success: true,
-        message: 'remove comment this post successfully',
+        message: messages.SUCCESS,
       })
     } else {
       // neu k phai chu bai viet hoac chu comment => k dc xoa comment
       return res.status(400).json({
         success: false,
-        message: "You cant remove other's comment",
+        message: messages.FAILED,
       })
     }
   } catch (err) {
     return res.status(500).json({
       success: false,
-      message: 'server error',
+      message: messages.SERVER_ERROR,
     })
   }
 }
@@ -300,7 +307,7 @@ module.exports.getCommentById = async (req, res) => {
     if (!currentPost) {
       return res.status(400).json({
         success: false,
-        message: 'This post not exist',
+        message: messages.POST_NOT_EXIST,
       })
     }
 
@@ -316,20 +323,20 @@ module.exports.getCommentById = async (req, res) => {
     if (!commentList) {
       return res.status(400).json({
         success: false,
-        message: 'This post not exist',
+        message: messages.POST_NOT_EXIST,
       })
     }
 
     return res.status(200).json({
       success: true,
-      message: 'Get comment by post id success',
+      message: messages.SUCCESS,
       comments: commentList,
       postId: currentPost._id,
     })
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: 'server error',
+      message: messages.SERVER_ERROR,
     })
   }
 }

@@ -1,19 +1,22 @@
+// libs
 require('dotenv').config()
 const nodemailer = require('nodemailer')
 const bcrypt = require('bcryptjs')
 const ObjectId = require('mongodb').ObjectID
+const { google } = require('googleapis')
+const { OAuth2 } = google.auth
+const client = new OAuth2(process.env.GOOGLE_CLIENT_ID)
+// models
 const User = require('../models/User')
+//extensions
 const { generateCode } = require('../extensions/generate')
+// helpers
 const {
   createAccessToken,
   createRefreshToken,
 } = require('../helpers/generateToken')
-
-const { google } = require('googleapis')
-const { findById } = require('../models/User')
-const { OAuth2 } = google.auth
-
-const client = new OAuth2(process.env.GOOGLE_CLIENT_ID)
+// constants
+const { messages } = require('../constants/index')
 
 // check authenticated
 module.exports.checkAuth = async (req, res) => {
@@ -22,18 +25,18 @@ module.exports.checkAuth = async (req, res) => {
     if (!user) {
       return res.status(400).json({
         success: false,
-        message: 'Người dùng không tồn tại',
+        message: messages.USER_NOT_EXIST,
       })
     }
     return res.status(200).json({
       success: true,
-      message: 'Vui lòng đăng nhập để tiếp tục',
+      message: messages.AUTHENTICATION_ERROR,
       user: user,
     })
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: 'server error',
+      message: messages.SERVER_ERROR,
     })
   }
 }
@@ -53,21 +56,21 @@ module.exports.checkVerify = async (req, res) => {
     if (!correctUser) {
       return res.status(400).json({
         success: false,
-        message: 'Mã code không hợp lêk',
+        message: messages.INVALID_CODE,
         isVerify: false,
       })
     }
 
     return res.status(200).json({
       success: true,
-      message: 'Xác minh thành công',
+      message: messages.VERIFY_SUCCESS,
       isVerify: true,
       user: correctUser,
     })
   } catch (err) {
     return res.status(500).json({
       success: false,
-      message: 'Server error',
+      message: messages.SERVER_ERROR,
     })
   }
 }
@@ -79,7 +82,7 @@ module.exports.register = async (req, res) => {
   if (emailExist) {
     return res.status(400).json({
       success: false,
-      message: 'Email đã được đăng ký',
+      message: messages.EMAIL_ALREADY_USED,
     })
   }
   // check phone number
@@ -87,7 +90,7 @@ module.exports.register = async (req, res) => {
   if (phoneExist) {
     return res.status(400).json({
       success: false,
-      message: 'Số diện thoại đã được đăng ký',
+      message: message.PHONE_ALREADY_USED,
     })
   }
   // hash password
@@ -127,7 +130,7 @@ module.exports.register = async (req, res) => {
       if (err) {
         return res.status(500).json({
           success: false,
-          message: 'Server error',
+          message: messages.SERVER_ERROR,
         })
       }
       await User.updateOne(
@@ -138,7 +141,7 @@ module.exports.register = async (req, res) => {
       )
       return res.status(200).json({
         success: true,
-        message: 'Gửi mail thành công',
+        message: messages.SEND_MAIL_SUCCESS,
         accessToken,
         user: newUser,
       })
@@ -146,7 +149,7 @@ module.exports.register = async (req, res) => {
   } catch (err) {
     return res.status(500).json({
       success: false,
-      message: 'Internal server error',
+      message: messages.SERVER_ERROR,
     })
   }
 }
@@ -161,7 +164,7 @@ module.exports.login = async (req, res) => {
     if (!user) {
       return res.status(400).json({
         success: false,
-        message: 'Email hoặc số điện thoại không tồn tại',
+        message: messages.EMAIL_OR_PHONE_NUMBER_NOT_EXIST,
       })
     }
     // check password
@@ -169,7 +172,7 @@ module.exports.login = async (req, res) => {
     if (!validPassword) {
       return res.status(400).json({
         success: false,
-        message: 'Mật khẩu không chính xác',
+        message: messages.INVALID_PASSWORD,
       })
     }
     //create and assign a token
@@ -184,14 +187,14 @@ module.exports.login = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: 'Đăng nhập thành công',
+      message: messages.LOGIN_SUCCESS,
       accessToken,
       user,
     })
   } catch (err) {
     return res.status(500).json({
       success: false,
-      message: 'server error',
+      message: messages.SERVER_ERROR,
     })
   }
 }
@@ -202,12 +205,12 @@ module.exports.logout = async (req, res) => {
     res.clearCookie('refreshToken', { path: '/api/auth/refresh-token' })
     return res.status(200).json({
       success: true,
-      message: 'Đăng xuất thành công',
+      message: messages.LOGOUT_SUCCESS,
     })
   } catch (err) {
     return res.status(500).json({
       success: false,
-      message: 'Internal server error',
+      message: messages.SERVER_ERROR,
     })
   }
 }
@@ -219,7 +222,7 @@ module.exports.refreshToken = async (req, res) => {
   } catch (err) {
     return res.status(500).json({
       success: false,
-      message: 'Internal server error',
+      message: messages.SERVER_ERROR,
     })
   }
 }
@@ -240,7 +243,7 @@ module.exports.loginWithGG = async (req, res) => {
     if (!email_verified) {
       return res.status(400).json({
         success: false,
-        message: 'Email của bạn chưa được xác thực',
+        message: messages.EMAIL_NOT_VERIFIED,
       })
     }
     // check da ton tai user trong DB chua
@@ -252,7 +255,7 @@ module.exports.loginWithGG = async (req, res) => {
       if (!validPassword) {
         return res.status(400).json({
           success: false,
-          message: 'Mật khẩu không chính xác',
+          message: messages.INVALID_PASSWORD,
         })
       }
       //create and assign a token
@@ -262,7 +265,7 @@ module.exports.loginWithGG = async (req, res) => {
       )
       return res.status(200).json({
         success: true,
-        message: 'Đăng nhập thành công',
+        message: messages.LOGIN_SUCCESS,
         accessToken,
         user,
       })
@@ -286,7 +289,7 @@ module.exports.loginWithGG = async (req, res) => {
       )
       return res.status(200).json({
         success: true,
-        message: 'Đăng nhập với tài khoản Google thành công',
+        message: messages.LOGIN_SUCCESS,
         accessToken,
         user: newUser,
       })
@@ -294,7 +297,7 @@ module.exports.loginWithGG = async (req, res) => {
   } catch (err) {
     return res.status(500).json({
       success: false,
-      message: 'Internal server error',
+      message: messages.SERVER_ERROR,
     })
   }
 }

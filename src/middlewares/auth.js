@@ -1,5 +1,6 @@
 require('dotenv').config()
 const jwt = require('jsonwebtoken')
+const { messages } = require('../constants')
 
 const verifyToken = (req, res, next) => {
   const authHeader = req.header('Authorization')
@@ -8,7 +9,7 @@ const verifyToken = (req, res, next) => {
   if (!token)
     return res.status(401).json({
       success: false,
-      message: 'Access token not found',
+      message: messages.AUTHENTICATION_ERROR,
     })
 
   try {
@@ -19,7 +20,7 @@ const verifyToken = (req, res, next) => {
   } catch (err) {
     return res.status(500).json({
       status: false,
-      message: 'Interal server error',
+      message: messages.SERVER_ERROR,
     })
   }
 }

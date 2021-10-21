@@ -1,4 +1,8 @@
 const { Schema, model } = require('mongoose')
+const {
+  DEFAULT_BACKGROUND_IMAGE,
+  DEFAULT_AVATAR_IMAGE,
+} = require('../constants')
 
 const BackgroundSchema = new Schema({
   publicId: {
@@ -7,7 +11,7 @@ const BackgroundSchema = new Schema({
   },
   url: {
     type: String,
-    default: `https://n-site.co.uk/wp-content/uploads/2020/03/Default-banner-navy.png`,
+    default: DEFAULT_BACKGROUND_IMAGE,
   },
   _id: false,
 })
@@ -19,7 +23,7 @@ const AvatarSchema = new Schema({
   },
   url: {
     type: String,
-    default: `https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS1mIqKy86M1mYgD1hZ87y3cp-86rVWkYWh7Q&usqp=CAU`,
+    default: DEFAULT_AVATAR_IMAGE,
   },
   _id: false,
 })
@@ -55,7 +59,7 @@ const UserSchema = new Schema(
       type: AvatarSchema,
       default: {
         publicId: '',
-        url: `https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS1mIqKy86M1mYgD1hZ87y3cp-86rVWkYWh7Q&usqp=CAU`,
+        url: DEFAULT_AVATAR_IMAGE,
       },
     },
     background: {

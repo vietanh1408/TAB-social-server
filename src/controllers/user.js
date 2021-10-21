@@ -1,7 +1,11 @@
-const Post = require('../models/Post')
-const User = require('../models/User')
+// libs
 const ObjectId = require('mongodb').ObjectID
 const bcrypt = require('bcryptjs')
+// models
+const Post = require('../models/Post')
+const User = require('../models/User')
+// constants
+const { messages } = require('../constants/index')
 
 // get all user
 module.exports.getUserProfile = async (req, res) => {
@@ -11,19 +15,19 @@ module.exports.getUserProfile = async (req, res) => {
     if (!profile) {
       return res.status(404).json({
         success: false,
-        message: 'User not found',
+        message: messages.USER_NOT_EXIST,
       })
     }
 
     return res.status(200).json({
       success: true,
-      message: 'get your profile successfully',
+      message: messages.SUCCESS,
       profile: profile,
     })
   } catch (err) {
     return res.status(500).json({
       success: false,
-      message: 'server error',
+      message: messages.SERVER_ERROR,
     })
   }
 }
@@ -37,13 +41,13 @@ module.exports.getOwnPost = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: 'get your posts successfully',
+      message: messages.SUCCESS,
       posts: myPosts,
     })
   } catch (err) {
     return res.status(500).json({
       success: false,
-      message: 'server error',
+      message: messages.SERVER_ERROR,
     })
   }
 }
@@ -64,13 +68,13 @@ module.exports.getFriendRequest = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: 'get friend request successfully',
+      message: messages.SUCCESS,
       friendRequests: friendRequests,
     })
   } catch (err) {
     return res.status(500).json({
       success: false,
-      message: 'server error',
+      message: messages.SERVER_ERROR,
     })
   }
 }
@@ -82,13 +86,13 @@ module.exports.getAllFriend = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: 'Get all friend successfully',
+      message: messages.SUCCESS,
       friends,
     })
   } catch (err) {
     return res.status(500).json({
       success: false,
-      message: 'server error',
+      message: messages.SERVER_ERROR,
     })
   }
 }
@@ -99,7 +103,7 @@ module.exports.editProfile = async (req, res) => {
   if (req.userId !== req.params.id) {
     return res.status(403).json({
       success: false,
-      message: 'You only can edit your profile',
+      message: messages.CAN_UPDATE_YOU_PROFILE,
     })
   } else {
     try {
@@ -119,13 +123,13 @@ module.exports.editProfile = async (req, res) => {
       )
       return res.status(200).json({
         success: true,
-        message: 'update profile successfully',
+        message: messages.UPDATE_SUCCESS,
         profile,
       })
     } catch (err) {
       return res.status(500).json({
         success: false,
-        message: 'Internal server error',
+        message: messages.SERVER_ERROR,
       })
     }
   }
@@ -140,18 +144,18 @@ module.exports.checkPassword = async (req, res) => {
     if (isDuplicated) {
       return res.status(200).json({
         success: true,
-        message: 'password is matched',
+        message: messages.SUCCESS,
       })
     } else {
       return res.status(400).json({
         success: false,
-        message: 'password not match',
+        message: messages.INVALID_PASSWORD,
       })
     }
   } catch (err) {
     return res.status(500).json({
       success: false,
-      message: 'server error',
+      message: messages.SERVER_ERROR,
     })
   }
 }
@@ -162,7 +166,7 @@ module.exports.sendFriendRequest = async (req, res) => {
     if (req.userId === req.body.friendId) {
       return res.status(400).json({
         success: false,
-        message: 'You cant send friend request your self',
+        message: messages.FAILED,
       })
     }
 
@@ -191,13 +195,13 @@ module.exports.sendFriendRequest = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: 'Send Friend Request successfully',
+      message: messages.SUCCESS,
       user: currentUser,
     })
   } catch (err) {
     return res.status(500).json({
       success: false,
-      message: 'server error',
+      message: messages.SERVER_ERROR,
     })
   }
 }
@@ -234,13 +238,13 @@ module.exports.acceptFriendRequest = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: 'add friend successfully',
+      message: messages.SUCCESS,
       user,
     })
   } catch (err) {
     return res.status(500).json({
       success: false,
-      message: 'server error',
+      message: messages.SERVER_ERROR,
     })
   }
 }
@@ -271,13 +275,13 @@ module.exports.unFriend = async (req, res) => {
     )
     return res.status(200).json({
       success: true,
-      message: 'unfriend successfully',
+      message: messages.SUCCESS,
       user,
     })
   } catch (err) {
     return res.status(500).json({
       success: false,
-      message: 'server error',
+      message: messages.SERVER_ERROR,
     })
   }
 }
@@ -304,13 +308,13 @@ module.exports.follow = async (req, res) => {
     )
     return res.status(200).json({
       success: true,
-      message: 'follow successfully',
+      message: messages.SUCCESS,
       user,
     })
   } catch (err) {
     return res.status(500).json({
       success: false,
-      message: 'server error',
+      message: messages.SERVER_ERROR,
     })
   }
 }
@@ -337,13 +341,13 @@ module.exports.unfollow = async (req, res) => {
     )
     return res.status(200).json({
       success: true,
-      message: 'unfollow successfully',
+      message: messages.SUCCESS,
       user,
     })
   } catch (err) {
     return res.status(500).json({
       success: false,
-      message: 'server error',
+      message: messages.SERVER_ERROR,
     })
   }
 }

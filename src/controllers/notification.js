@@ -1,5 +1,9 @@
-const Notification = require('../models/Notification')
+// libs
 const ObjectId = require('mongodb').ObjectID
+// models
+const Notification = require('../models/Notification')
+// constants
+const { messages } = require('../constants/index')
 
 module.exports.createNotification = async (req, res) => {
   try {
@@ -25,13 +29,13 @@ module.exports.createNotification = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: 'Tạo thông báo thành công',
+      message: messages.CREATE_SUCCESS,
       notification,
     })
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: 'server error',
+      message: messages.SERVER_ERROR,
     })
   }
 }
@@ -49,14 +53,14 @@ module.exports.getNotification = async (req, res) => {
     })
     return res.status(200).json({
       success: true,
-      message: 'Lấy thông báo thành công',
+      message: messages.SUCCESS,
       notifications,
       notificationCount,
     })
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: 'server error',
+      message: messages.SERVER_ERROR,
     })
   }
 }

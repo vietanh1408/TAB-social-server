@@ -28,10 +28,10 @@ router.put('/unfriend', verifyToken, controller.unFriend)
 // follow
 router.put('/follow', verifyToken, controller.follow)
 
-// unfollow
+// un follow
 router.put('/unfollow', verifyToken, controller.unfollow)
 
-// eidt profile
+// edit profile
 router.put('/edit/:id', verifyToken, controller.editProfile)
 
 // get profile
