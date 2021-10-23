@@ -236,28 +236,19 @@ module.exports.loginWithGG = async (req, res) => {
       audience: process.env.GOOGLE_CLIENT_ID,
     })
     const { email_verified, email, name, picture } = verify.payload
-    const password = email + process.env.GOOGLE_CLIENT_CODE
-    // hash password
-    const salt = await bcrypt.genSalt(10)
-    const hashPassword = await bcrypt.hash(password, salt)
-    if (!email_verified) {
-      return res.status(400).json({
-        success: false,
-        message: messages.EMAIL_NOT_VERIFIED,
-      })
-    }
+
     // check da ton tai user trong DB chua
     const user = await User.findOne({ email })
     // da co user
     if (user) {
       // check password
-      const validPassword = await bcrypt.compare(password, user.password)
-      if (!validPassword) {
-        return res.status(400).json({
-          success: false,
-          message: messages.INVALID_PASSWORD,
-        })
-      }
+      // const validPassword = await bcrypt.compare(password, user.password)
+      // if (!validPassword) {
+      //   return res.status(400).json({
+      //     success: false,
+      //     message: messages.INVALID_PASSWORD,
+      //   })
+      // }
       //create and assign a token
       const accessToken = await createAccessToken(
         user._id,
@@ -270,7 +261,18 @@ module.exports.loginWithGG = async (req, res) => {
         user,
       })
     } else {
+      // if
       // create new user
+      // const password = email + process.env.GOOGLE_CLIENT_CODE
+      // hash password
+      // const salt = await bcrypt.genSalt(10)
+      // const hashPassword = await bcrypt.hash(password, salt)
+      if (!email_verified) {
+        return res.status(400).json({
+          success: false,
+          message: messages.EMAIL_NOT_VERIFIED,
+        })
+      }
       const user = new User({
         name,
         email,
@@ -278,7 +280,7 @@ module.exports.loginWithGG = async (req, res) => {
           url: picture,
           publicId: '',
         },
-        password: hashPassword,
+        // password: hashPassword,
         isVerifiedMail: true,
       })
       const newUser = await user.save()

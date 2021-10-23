@@ -7,9 +7,9 @@ const User = require('../models/User')
 // constants
 const { messages } = require('../constants/index')
 
-// get all user
 module.exports.getUserProfile = async (req, res) => {
   try {
+    console.log('id.....', req.params.id)
     const profile = await User.findOne({ _id: req.params.id })
 
     if (!profile) {
