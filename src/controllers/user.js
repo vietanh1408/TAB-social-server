@@ -79,24 +79,6 @@ module.exports.getFriendRequest = async (req, res) => {
   }
 }
 
-// get all friend
-module.exports.getAllFriend = async (req, res) => {
-  try {
-    const { friends } = await User.findById(req.userId)
-
-    return res.status(200).json({
-      success: true,
-      message: messages.SUCCESS,
-      friends,
-    })
-  } catch (err) {
-    return res.status(500).json({
-      success: false,
-      message: messages.SERVER_ERROR,
-    })
-  }
-}
-
 // edit profile
 module.exports.editProfile = async (req, res) => {
   // check own profile
@@ -192,6 +174,39 @@ module.exports.sendFriendRequest = async (req, res) => {
         },
       }
     )
+
+    return res.status(200).json({
+      success: true,
+      message: messages.SUCCESS,
+      user: currentUser,
+    })
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: messages.SERVER_ERROR,
+    })
+  }
+}
+
+// cancel send friend request
+module.exports.cancelSendFriendRequest = async (req, res) => {
+  try {
+    console.log('req.body.....', req.body)
+    // remove friend request from friend request list
+    const currentUser = await User.findByIdAndUpdate(
+      { _id: req.userId },
+      {
+        $pull: { sendFriendRequests: req.body.friendId },
+      },
+      { new: true }
+    )
+
+    if (!currentUser) {
+      return res.status(400).json({
+        success: false,
+        message: messages.USER_NOT_EXIST,
+      })
+    }
 
     return res.status(200).json({
       success: true,

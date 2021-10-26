@@ -16,6 +16,7 @@ const io = require('socket.io')(http, { cors: { origin: '*' } })
 const authRoute = require('./routes/auth')
 const postRoute = require('./routes/post')
 const userRoute = require('./routes/user')
+const friendRoute = require('./routes/friend')
 const uploadRoute = require('./routes/upload')
 const notificationRoute = require('./routes/notification')
 
@@ -34,6 +35,7 @@ app.use(
 app.use('/api/auth', authRoute)
 app.use('/api/posts', postRoute)
 app.use('/api/user', userRoute)
+app.use('/api/friend', friendRoute)
 app.use('/api/notification', notificationRoute)
 app.use('/api/', uploadRoute)
 

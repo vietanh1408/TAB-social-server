@@ -36,7 +36,6 @@ module.exports.SocketServer = (socket) => {
 
   // lang nghe su kien sendFriendRequest
   socket.on('sendFriendRequest', (notification) => {
-    console.log('notification sendFriendRequest...', notification)
     const ids = [...notification.user, notification.receivers]
     const clients = users.filter((user) => ids.includes(user.id))
     if (clients.length > 0) {
