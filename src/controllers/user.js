@@ -191,12 +191,14 @@ module.exports.sendFriendRequest = async (req, res) => {
 // cancel send friend request
 module.exports.cancelSendFriendRequest = async (req, res) => {
   try {
-    console.log('req.body.....', req.body)
-    // remove friend request from friend request list
+    // remove send friend request from your send friend request list
     const currentUser = await User.findByIdAndUpdate(
       { _id: req.userId },
       {
-        $pull: { sendFriendRequests: req.body.friendId },
+        $pull: {
+          sendFriendRequests: req.body.friendId,
+          followings: req.body.friendId,
+        },
       },
       { new: true }
     )
@@ -207,6 +209,14 @@ module.exports.cancelSendFriendRequest = async (req, res) => {
         message: messages.USER_NOT_EXIST,
       })
     }
+
+    // remove friend request from friend's friend request
+    await User.findOneAndUpdate(
+      { _id: req.body.friendId },
+      {
+        $pull: { friendRequests: req.userId, followers: req.userId },
+      }
+    )
 
     return res.status(200).json({
       success: true,
