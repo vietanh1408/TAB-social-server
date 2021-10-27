@@ -7,10 +7,13 @@ const cors = require('cors')
 // import libs
 const bodyParser = require('body-parser')
 const fileUpload = require('express-fileupload')
-const { connectDB } = require('./utils/mongodb')
 const { SocketServer } = require('./socketServer')
 const http = require('http').createServer(app)
 const io = require('socket.io')(http, { cors: { origin: '*' } })
+
+// connect DB
+const { connectDB } = require('./utils/mongodb')
+const { connectRedis } = require('./utils/redis')
 
 //import routes
 const authRoute = require('./routes/auth')
@@ -39,6 +42,9 @@ app.use('/api/', uploadRoute)
 
 // connect mongoDB
 connectDB()
+
+// connect Redis
+connectRedis()
 
 // connect socket.io
 io.on('connection', (socket) => {

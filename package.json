@@ -5,6 +5,9 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon --inspect src/server.js",
+    "worker": "node ./build/jobs/worker.js",
+    "worker:dev": "nodemon ./src/jobs/worker.js",
+    "start:worker": "nodemon src/jobs/bull.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -14,6 +17,8 @@
     "@sendgrid/mail": "^7.4.5",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
+    "bull": "^3.29.3",
+    "bull-arena": "^3.29.3",
     "cloudinary": "^1.26.3",
     "cors": "^2.8.5",
     "dotenv": "^9.0.2",
@@ -24,6 +29,7 @@
     "mongoose": "^5.12.9",
     "nodemailer": "^6.6.3",
     "nodemon": "^2.0.7",
+    "redis": "^3.1.2",
     "socket.io": "^4.1.2"
   }
 }
