@@ -126,7 +126,7 @@ module.exports.register = async (req, res) => {
         success: true,
         message: messages.SEND_MAIL_SUCCESS,
         accessToken,
-        user: result,
+        user: result.data,
       })
     }
 
