@@ -12,15 +12,19 @@ router.get('/friend-request', verifyToken, controller.getFriendRequest)
 // send add friend request
 router.post('/send-friend-request', verifyToken, controller.sendFriendRequest)
 
+// cancel send add friend request
+router.post(
+  '/cancel-send-friend-request',
+  verifyToken,
+  controller.cancelSendFriendRequest
+)
+
 // accept friend request
 router.put(
   '/accept-friend-request',
   verifyToken,
   controller.acceptFriendRequest
 )
-
-// get all friend
-router.get('/friends', verifyToken, controller.getAllFriend)
 
 // unfriend
 router.put('/unfriend', verifyToken, controller.unFriend)
