@@ -18,6 +18,7 @@ const {
 // constants
 const { messages } = require('../constants/index')
 const { sendVerifiedEmail } = require('../jobs/processes/sendVerifiedEmail')
+const { queues } = require('../jobs/queues/index')
 
 // check authenticated
 module.exports.checkAuth = async (req, res) => {
@@ -113,9 +114,9 @@ module.exports.register = async (req, res) => {
       process.env.ACCESS_TOKEN_SECRET
     )
 
-    const result = await sendVerifiedEmail({ newUser })
+    const result = await queues.processSendVerifiedEmail.add(newUser)
 
-    if (result === messages.SERVER_ERROR) {
+    if (!result || result.data === messages.SERVER_ERROR) {
       return res.status(500).json({
         success: false,
         message: messages.SERVER_ERROR,

@@ -9,6 +9,6 @@ const processSendVerifiedEmail = new Queue(
   REDIS_TASK_URL
 )
 
-module.exports.queue = {
+module.exports.queues = {
   processSendVerifiedEmail,
 }

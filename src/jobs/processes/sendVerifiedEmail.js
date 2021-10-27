@@ -1,5 +1,6 @@
 require('dotenv').config()
 const nodemailer = require('nodemailer')
+const ObjectId = require('mongodb').ObjectID
 const { messages } = require('../../constants')
 const { generateCode } = require('../../extensions/generate')
 const User = require('../../models/User')
@@ -25,7 +26,7 @@ module.exports.sendVerifiedEmail = async (user) => {
         return messages.SERVER_ERROR
       }
       await User.updateOne(
-        { _id: ObjectId(newUser._id) },
+        { _id: ObjectId(user._id) },
         {
           verifyCode: randomCode,
         }
@@ -33,6 +34,6 @@ module.exports.sendVerifiedEmail = async (user) => {
       return user
     })
   } catch (err) {
-    return Promise.reject(err)
+    return messages.SERVER_ERROR
   }
 }
