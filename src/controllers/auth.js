@@ -17,6 +17,7 @@ const {
 } = require('../helpers/generateToken')
 // constants
 const { messages } = require('../constants/index')
+const { sendVerifiedEmail } = require('../jobs/processes/sendVerifiedEmail')
 
 // check authenticated
 module.exports.checkAuth = async (req, res) => {
@@ -111,41 +112,58 @@ module.exports.register = async (req, res) => {
       newUser._id,
       process.env.ACCESS_TOKEN_SECRET
     )
-    // send mail
-    const randomCode = generateCode(6)
-    const smtpTransport = await nodemailer.createTransport({
-      service: 'Gmail',
-      auth: {
-        user: process.env.EMAIL,
-        pass: process.env.PASS,
-      },
-    })
-    const mailOptions = {
-      from: process.env.EMAIL,
-      to: newUser.email,
-      subject: 'Mã xác thực tài khoản TAB-social',
-      text: `Mã xác thực tài khoản TAB-social của bạn là ${randomCode}`,
-    }
-    smtpTransport.sendMail(mailOptions, async (err, response) => {
-      if (err) {
-        return res.status(500).json({
-          success: false,
-          message: messages.SERVER_ERROR,
-        })
-      }
-      await User.updateOne(
-        { _id: ObjectId(newUser._id) },
-        {
-          verifyCode: randomCode,
-        }
-      )
+
+    const result = await sendVerifiedEmail({ newUser })
+
+    if (result === messages.SERVER_ERROR) {
+      return res.status(500).json({
+        success: false,
+        message: messages.SERVER_ERROR,
+      })
+    } else {
       return res.status(200).json({
         success: true,
         message: messages.SEND_MAIL_SUCCESS,
         accessToken,
-        user: newUser,
+        user: result,
       })
-    })
+    }
+
+    // // send mail
+    // const randomCode = generateCode(6)
+    // const smtpTransport = await nodemailer.createTransport({
+    //   service: 'Gmail',
+    //   auth: {
+    //     user: process.env.EMAIL,
+    //     pass: process.env.PASS,
+    //   },
+    // })
+    // const mailOptions = {
+    //   from: process.env.EMAIL,
+    //   to: newUser.email,
+    //   subject: 'Mã xác thực tài khoản TAB-social',
+    //   text: `Mã xác thực tài khoản TAB-social của bạn là ${randomCode}`,
+    // }
+    // smtpTransport.sendMail(mailOptions, async (err, response) => {
+    //   if (err) {
+    //     return res.status(500).json({
+    //       success: false,
+    //       message: messages.SERVER_ERROR,
+    //     })
+    //   }
+    //   await User.updateOne(
+    //     { _id: ObjectId(newUser._id) },
+    //     {
+    //       verifyCode: randomCode,
+    //     }
+    //   )
+    //   return res.status(200).json({
+    //     success: true,
+    //     message: messages.SEND_MAIL_SUCCESS,
+    //     accessToken,
+    //     user: newUser,
+    //   })
+    // })
   } catch (err) {
     return res.status(500).json({
       success: false,
