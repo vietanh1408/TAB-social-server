@@ -7,7 +7,7 @@ const verifyToken = require('../middlewares/auth')
 router.get('/', verifyToken, controller.index)
 
 // create a post
-router.post('/create', verifyToken, controller.createPost)
+router.post('/', verifyToken, controller.createPost)
 
 // like a post
 router.post('/like', verifyToken, controller.likeAPost)
@@ -25,10 +25,10 @@ router.post('/remove-comment', verifyToken, controller.removeComment)
 router.get('/comments/:id', verifyToken, controller.getCommentById)
 
 // edit post
-router.put('/edit/:id', verifyToken, controller.editPost)
+router.put('/:id', verifyToken, controller.editPost)
 
 // delete post
-router.delete('/delete/:id', verifyToken, controller.deletePost)
+router.delete('/:id', verifyToken, controller.deletePost)
 
 // get one post
 router.get('/:id', verifyToken, controller.getPostById)

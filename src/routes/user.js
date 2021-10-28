@@ -36,7 +36,7 @@ router.put('/follow', verifyToken, controller.follow)
 router.put('/unfollow', verifyToken, controller.unfollow)
 
 // edit profile
-router.put('/edit/:id', verifyToken, controller.editProfile)
+router.put('/:id', verifyToken, controller.editProfile)
 
 // get profile
 router.get('/:id', verifyToken, controller.getUserProfile)
