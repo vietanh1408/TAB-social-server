@@ -1,11 +1,11 @@
 // libs
-require('dotenv').config()
+const environments = require('../constants/environment')
 const nodemailer = require('nodemailer')
 const bcrypt = require('bcryptjs')
 const ObjectId = require('mongodb').ObjectID
 const { google } = require('googleapis')
 const { OAuth2 } = google.auth
-const client = new OAuth2(process.env.GOOGLE_CLIENT_ID)
+const client = new OAuth2(environments.GOOGLE_CLIENT_ID)
 // models
 const User = require('../models/User')
 //extensions
@@ -109,19 +109,19 @@ module.exports.register = async (req, res) => {
     // return token
     const accessToken = await createAccessToken(
       newUser._id,
-      process.env.ACCESS_TOKEN_SECRET
+      environments.ACCESS_TOKEN_SECRET
     )
     // send mail
     const randomCode = generateCode(6)
     const smtpTransport = await nodemailer.createTransport({
       service: 'Gmail',
       auth: {
-        user: process.env.EMAIL,
-        pass: process.env.PASS,
+        user: environments.EMAIL,
+        pass: environments.PASS,
       },
     })
     const mailOptions = {
-      from: process.env.EMAIL,
+      from: environments.EMAIL,
       to: newUser.email,
       subject: messages.VERIFIED_SUBJECT,
       text: `${messages.VERIFIED_TEXT} ${randomCode}`,
@@ -178,13 +178,8 @@ module.exports.login = async (req, res) => {
     //create and assign a token
     const accessToken = await createAccessToken(
       user._id,
-      process.env.ACCESS_TOKEN_SECRET
+      environments.ACCESS_TOKEN_SECRET
     )
-
-    // const refreshToken = await createRefreshToken(
-    //   user._id,
-    //   process.env.REFRESH_TOKEN_SECRET
-    // )
 
     return res.status(200).json({
       success: true,
@@ -234,10 +229,10 @@ module.exports.loginWithGG = async (req, res) => {
     const { tokenId } = req.body
     const verify = await client.verifyIdToken({
       idToken: tokenId,
-      audience: process.env.GOOGLE_CLIENT_ID,
+      audience: environments.GOOGLE_CLIENT_ID,
     })
     const { email_verified, email, name, picture } = verify.payload
-    const password = email + process.env.GOOGLE_CLIENT_CODE
+    const password = email + environments.GOOGLE_CLIENT_CODE
     // hash password
     const salt = await bcrypt.genSalt(10)
     const hashPassword = await bcrypt.hash(password, salt)
@@ -262,7 +257,7 @@ module.exports.loginWithGG = async (req, res) => {
       //create and assign a token
       const accessToken = await createAccessToken(
         user._id,
-        process.env.ACCESS_TOKEN_SECRET
+        environments.ACCESS_TOKEN_SECRET
       )
       return res.status(200).json({
         success: true,
@@ -286,7 +281,7 @@ module.exports.loginWithGG = async (req, res) => {
       // return token
       const accessToken = await createAccessToken(
         newUser._id,
-        process.env.ACCESS_TOKEN_SECRET
+        environments.ACCESS_TOKEN_SECRET
       )
       return res.status(200).json({
         success: true,

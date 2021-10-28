@@ -1,5 +1,6 @@
 // libs
 const ObjectId = require('mongodb').ObjectID
+const cloudinary = require('cloudinary').v2
 // models
 const Post = require('../models/Post')
 const User = require('../models/User')
@@ -157,6 +158,16 @@ module.exports.deletePost = async (req, res) => {
     // check own post
     if (post.user == req.userId) {
       await Post.findByIdAndDelete({ _id: req.params.id })
+      if (post?.image && post?.image?.publicId) {
+        cloudinary.uploader.destroy(
+          post.image?.publicId,
+          async (err, result) => {
+            if (err) {
+              throw err
+            }
+          }
+        )
+      }
       return res.status(200).json({
         success: true,
         message: messages.DELETE_SUCCESS,

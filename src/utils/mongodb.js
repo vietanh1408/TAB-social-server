@@ -1,17 +1,14 @@
 const mongoose = require('mongoose')
-require('dotenv').config()
+const environments = require('../constants/environment')
 
 module.exports.connectDB = async () => {
   try {
-    await mongoose.connect(
-      process.env.MONGO_URI || 'mongodb://localhost/TAB-social',
-      {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-        useCreateIndex: true,
-        useFindAndModify: false,
-      }
-    )
+    await mongoose.connect(environments.MONGO_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      useCreateIndex: true,
+      useFindAndModify: false,
+    })
     console.log('🔵 connected database !')
   } catch (err) {
     console.log('🔴 connect database fail !')

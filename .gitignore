@@ -1,3 +1,4 @@
 node_modules
 .env
-tmp
+.env.development
+.env.production
