@@ -1,24 +1,12 @@
-const { Schema, model } = require('mongoose')
+const { Schema, model, Types } = require('mongoose')
 
 const MessageSchema = new Schema(
   {
-    senderId: {
-      type: String,
-      required: true,
-    },
-    receiverId: {
-      type: Array,
-      required: true,
-      default: [],
-    },
-    message: {
-      type: String,
-      required: true,
-    },
-    roomId: {
-      type: String,
-      required: true,
-    },
+    roomId: { type: Types.ObjectId, ref: 'roomChat' },
+    from: { type: Types.ObjectId, ref: 'user' },
+    to: [{ type: Types.ObjectId, ref: 'user' }],
+    message: { type: String },
+    isRead: { type: Boolean, default: false },
   },
   {
     timestamps: true,

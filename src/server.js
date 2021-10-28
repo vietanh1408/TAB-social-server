@@ -19,6 +19,7 @@ const userRoute = require('./routes/user')
 const friendRoute = require('./routes/friend')
 const uploadRoute = require('./routes/upload')
 const notificationRoute = require('./routes/notification')
+const chatRoute = require('./routes/chat')
 
 // app use
 app.use(express.json({ limit: '50mb' }))
@@ -37,6 +38,7 @@ app.use('/api/posts', postRoute)
 app.use('/api/user', userRoute)
 app.use('/api/friend', friendRoute)
 app.use('/api/notification', notificationRoute)
+app.use('/api/chat', chatRoute)
 app.use('/api/', uploadRoute)
 
 // connect mongoDB

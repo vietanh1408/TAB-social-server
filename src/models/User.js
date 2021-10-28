@@ -1,4 +1,4 @@
-const { Schema, model } = require('mongoose')
+const { Schema, model, Types } = require('mongoose')
 const {
   DEFAULT_BACKGROUND_IMAGE,
   DEFAULT_AVATAR_IMAGE,
@@ -118,6 +118,7 @@ const UserSchema = new Schema(
       type: String,
       default: '',
     },
+    roomChats: [{ type: Types.ObjectId, ref: 'roomChat' }],
   },
   {
     versionKey: false,

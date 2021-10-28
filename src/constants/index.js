@@ -35,4 +35,7 @@ module.exports.messages = {
   UPLOAD_SUCCESS: 'Tải lên thành công',
   FILE_NOT_EXIST: 'File không tồn tại',
   CAN_UPDATE_YOU_PROFILE: 'Bạn chỉ có thể chỉnh sửa trang cá nhân của bạn',
+  VERIFIED_SUBJECT: 'Mã xác thực tài khoản TAB-social',
+  VERIFIED_TEXT: 'Mã xác thực tài khoản TAB-social của bạn là',
+  ROOM_NOT_EXIST: 'Phòng chat không tồn tại',
 }

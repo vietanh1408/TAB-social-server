@@ -123,8 +123,8 @@ module.exports.register = async (req, res) => {
     const mailOptions = {
       from: process.env.EMAIL,
       to: newUser.email,
-      subject: 'Mã xác thực tài khoản TAB-social',
-      text: `Mã xác thực tài khoản TAB-social của bạn là ${randomCode}`,
+      subject: messages.VERIFIED_SUBJECT,
+      text: `${messages.VERIFIED_TEXT} ${randomCode}`,
     }
     smtpTransport.sendMail(mailOptions, async (err, response) => {
       if (err) {
@@ -180,10 +180,11 @@ module.exports.login = async (req, res) => {
       user._id,
       process.env.ACCESS_TOKEN_SECRET
     )
-    const refreshToken = await createRefreshToken(
-      user._id,
-      process.env.REFRESH_TOKEN_SECRET
-    )
+
+    // const refreshToken = await createRefreshToken(
+    //   user._id,
+    //   process.env.REFRESH_TOKEN_SECRET
+    // )
 
     return res.status(200).json({
       success: true,
