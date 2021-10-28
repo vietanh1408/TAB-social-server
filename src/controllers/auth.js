@@ -23,7 +23,7 @@ module.exports.checkAuth = async (req, res) => {
   try {
     const user = await User.findById(req.userId)
     if (!user) {
-      return res.status(400).json({
+      return res.status(404).json({
         success: false,
         message: messages.USER_NOT_EXIST,
       })
@@ -162,7 +162,7 @@ module.exports.login = async (req, res) => {
       $or: [{ email: req.body.emailOrPhone }, { phone: req.body.emailOrPhone }],
     })
     if (!user) {
-      return res.status(400).json({
+      return res.status(404).json({
         success: false,
         message: messages.EMAIL_OR_PHONE_NUMBER_NOT_EXIST,
       })

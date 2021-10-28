@@ -69,7 +69,7 @@ module.exports.getPostById = async (req, res) => {
       .populate('user', ['name', 'avatar'])
       .populate('comment')
     if (!post) {
-      return res.status(400).json({
+      return res.status(404).json({
         success: false,
         message: messages.POST_NOT_EXIST,
       })
@@ -101,7 +101,7 @@ module.exports.createPost = async (req, res) => {
       'name',
       'avatar',
     ])
-    return res.status(200).json({
+    return res.status(201).json({
       success: true,
       message: messages.CREATE_SUCCESS,
       post: post,
@@ -119,7 +119,7 @@ module.exports.editPost = async (req, res) => {
   try {
     const post = await Post.findById(req.params.id)
     if (!post) {
-      return res.status(400).json({
+      return res.status(404).json({
         success: false,
         message: messages.POST_NOT_EXIST,
       })
@@ -150,7 +150,7 @@ module.exports.deletePost = async (req, res) => {
   try {
     const post = await Post.findById(req.params.id)
     if (!post) {
-      return res.status(400).json({
+      return res.status(404).json({
         success: false,
         message: messages.POST_NOT_EXIST,
       })
@@ -316,7 +316,7 @@ module.exports.getCommentById = async (req, res) => {
   try {
     const currentPost = await Post.findById(req.params.id)
     if (!currentPost) {
-      return res.status(400).json({
+      return res.status(404).json({
         success: false,
         message: messages.POST_NOT_EXIST,
       })
@@ -332,7 +332,7 @@ module.exports.getCommentById = async (req, res) => {
       .populate('user', ['name', 'avatar', '_id'])
 
     if (!commentList) {
-      return res.status(400).json({
+      return res.status(404).json({
         success: false,
         message: messages.POST_NOT_EXIST,
       })

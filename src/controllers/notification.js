@@ -27,7 +27,7 @@ module.exports.createNotification = async (req, res) => {
       _id: newNotification._id,
     }).populate('sender', ['name', 'avatar'])
 
-    return res.status(200).json({
+    return res.status(201).json({
       success: true,
       message: messages.CREATE_SUCCESS,
       notification,

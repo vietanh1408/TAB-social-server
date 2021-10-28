@@ -204,7 +204,7 @@ module.exports.cancelSendFriendRequest = async (req, res) => {
     )
 
     if (!currentUser) {
-      return res.status(400).json({
+      return res.status(404).json({
         success: false,
         message: messages.USER_NOT_EXIST,
       })

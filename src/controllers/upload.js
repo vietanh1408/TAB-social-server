@@ -31,7 +31,7 @@ module.exports.removeFileUpload = async (req, res) => {
   try {
     const { public_id } = req.body
     if (!public_id) {
-      return res.status(400).json({
+      return res.status(404).json({
         success: false,
         message: messages.FILE_NOT_EXIST,
       })
