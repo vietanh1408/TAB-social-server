@@ -4,7 +4,7 @@ const Message = require('../models/Message')
 
 module.exports.getConversation = async (req, res) => {
   try {
-    // get RoomID
+    // get RoomID (req.params.id === friendId)
     const currentRoomChat = await RoomChat.findOne({
       $and: [{ users: req.userId }, { users: req.params.id }],
     }).populate('users', 'name avatar')
@@ -14,11 +14,12 @@ module.exports.getConversation = async (req, res) => {
       const roomChat = new RoomChat({
         users: [req.userId, req.params.id],
       })
+
       const newRoomChat = await roomChat.save()
 
-      return res.status(200).json({
+      return res.status(201).json({
         success: true,
-        message: 'OK',
+        message: messages.CREATE_SUCCESS,
         roomChat: newRoomChat,
         conversation: [],
       })
@@ -28,7 +29,7 @@ module.exports.getConversation = async (req, res) => {
 
       return res.status(200).json({
         success: true,
-        message: 'OK3',
+        message: messages.SUCCESS,
         roomChat: currentRoomChat,
         conversation,
       })
