@@ -39,7 +39,7 @@ app.use('/api/posts', postRoute)
 app.use('/api/users', userRoute)
 app.use('/api/friends', friendRoute)
 app.use('/api/notifications', notificationRoute)
-app.use('/api/chats', chatRoute)
+app.use('/api/chat', chatRoute)
 app.use('/api/', uploadRoute)
 
 // connect mongoDB
