@@ -42,6 +42,6 @@ router.put('/:id', verifyToken, controller.editProfile)
 router.get('/:id', verifyToken, controller.getUserProfile)
 
 // get own posts
-router.get('/posts', verifyToken, controller.getOwnPost)
+router.get('/:id/posts', verifyToken, controller.getPostByUserId)
 
 module.exports = router
