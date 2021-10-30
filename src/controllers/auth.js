@@ -1,23 +1,15 @@
 // libs
 const environments = require('../constants/environment')
-const nodemailer = require('nodemailer')
 const bcrypt = require('bcryptjs')
-const ObjectId = require('mongodb').ObjectID
 const { google } = require('googleapis')
 const { OAuth2 } = google.auth
 const client = new OAuth2(environments.GOOGLE_CLIENT_ID)
 // models
 const User = require('../models/User')
-//extensions
-const { generateCode } = require('../extensions/generate')
 // helpers
-const {
-  createAccessToken,
-  createRefreshToken,
-} = require('../helpers/generateToken')
+const { createAccessToken } = require('../helpers/generateToken')
 // constants
 const { messages } = require('../constants/index')
-const { sendVerifiedEmail } = require('../jobs/processes/sendVerifiedEmail')
 const { queues } = require('../jobs/queues/index')
 
 // check authenticated
@@ -129,42 +121,6 @@ module.exports.register = async (req, res) => {
         user: result.data,
       })
     }
-
-    // // send mail
-    // const randomCode = generateCode(6)
-    // const smtpTransport = await nodemailer.createTransport({
-    //   service: 'Gmail',
-    //   auth: {
-    //     user: process.env.EMAIL,
-    //     pass: process.env.PASS,
-    //   },
-    // })
-    // const mailOptions = {
-    //   from: process.env.EMAIL,
-    //   to: newUser.email,
-    //   subject: 'Mã xác thực tài khoản TAB-social',
-    //   text: `Mã xác thực tài khoản TAB-social của bạn là ${randomCode}`,
-    // }
-    // smtpTransport.sendMail(mailOptions, async (err, response) => {
-    //   if (err) {
-    //     return res.status(500).json({
-    //       success: false,
-    //       message: messages.SERVER_ERROR,
-    //     })
-    //   }
-    //   await User.updateOne(
-    //     { _id: ObjectId(newUser._id) },
-    //     {
-    //       verifyCode: randomCode,
-    //     }
-    //   )
-    //   return res.status(200).json({
-    //     success: true,
-    //     message: messages.SEND_MAIL_SUCCESS,
-    //     accessToken,
-    //     user: newUser,
-    //   })
-    // })
   } catch (err) {
     return res.status(500).json({
       success: false,
@@ -309,6 +265,63 @@ module.exports.loginWithGG = async (req, res) => {
         user: newUser,
       })
     }
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: messages.SERVER_ERROR,
+    })
+  }
+}
+
+// forgot password
+module.exports.forgotPassword = async (req, res) => {
+  try {
+    // check user exist
+    const currentUser = await User.findOne({ email: req.body.email })
+    if (!currentUser) {
+      return res.status(400).json({
+        success: false,
+        message: messages.USER_NOT_EXIST,
+      })
+    }
+
+    // send verified code to email
+    const result = await queues.processSendVerifiedEmail.add(currentUser)
+    if (!result || result.data === messages.SERVER_ERROR) {
+      return res.status(500).json({
+        success: false,
+        message: messages.SERVER_ERROR,
+      })
+    } else {
+      return res.status(200).json({
+        success: true,
+        message: messages.SEND_MAIL_SUCCESS,
+      })
+    }
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: messages.SERVER_ERROR,
+    })
+  }
+}
+
+// check change password code
+module.exports.checkChangePasswordCode = async (req, res) => {
+  try {
+    // check valid code
+    const currentUser = await User.findOne({ verifyCode: req.body.code })
+    if (!currentUser) {
+      return res.status(400).json({
+        success: false,
+        message: messages.USER_NOT_EXIST,
+      })
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: messages.SUCCESS,
+    })
   } catch (err) {
     return res.status(500).json({
       success: false,

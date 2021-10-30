@@ -44,4 +44,7 @@ router.get('/:id', verifyToken, controller.getUserProfile)
 // get own posts
 router.get('/:id/posts', verifyToken, controller.getPostByUserId)
 
+// change password
+router.patch('/change-password', controller.changePassword)
+
 module.exports = router

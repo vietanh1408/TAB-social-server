@@ -23,4 +23,10 @@ router.get('/logout', verifyToken, controller.logout)
 // refresh token
 router.post('/refresh-token', controller.refreshToken)
 
+// forgot password
+router.post('/forgot-password', controller.forgotPassword)
+
+// check code to change password
+router.post('/check-change-password-code', controller.checkChangePasswordCode)
+
 module.exports = router

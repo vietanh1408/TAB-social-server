@@ -376,3 +376,14 @@ module.exports.unfollow = async (req, res) => {
     })
   }
 }
+
+// change password
+module.exports.changePassword = async (req, res) => {
+  try {
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: messages.SERVER_ERROR,
+    })
+  }
+}
