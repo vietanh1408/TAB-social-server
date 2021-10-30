@@ -158,9 +158,9 @@ module.exports.deletePost = async (req, res) => {
     // check own post
     if (post.user == req.userId) {
       await Post.findByIdAndDelete({ _id: req.params.id })
-      if (post?.image && post?.image?.publicId) {
+      if (post.image && post.image.publicId) {
         cloudinary.uploader.destroy(
-          post.image?.publicId,
+          post.image.publicId,
           async (err, result) => {
             if (err) {
               throw err
