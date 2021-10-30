@@ -1,6 +1,6 @@
-require('dotenv').config()
 const jwt = require('jsonwebtoken')
 const { messages } = require('../constants')
+const environments = require('../constants/environment')
 
 const verifyToken = (req, res, next) => {
   const authHeader = req.header('Authorization')
@@ -13,7 +13,7 @@ const verifyToken = (req, res, next) => {
     })
 
   try {
-    const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET)
+    const decodedToken = jwt.verify(token, environments.ACCESS_TOKEN_SECRET)
 
     req.userId = decodedToken.userId
     next()

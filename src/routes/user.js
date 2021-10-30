@@ -36,12 +36,12 @@ router.put('/follow', verifyToken, controller.follow)
 router.put('/unfollow', verifyToken, controller.unfollow)
 
 // edit profile
-router.put('/edit/:id', verifyToken, controller.editProfile)
+router.put('/:id', verifyToken, controller.editProfile)
 
 // get profile
 router.get('/:id', verifyToken, controller.getUserProfile)
 
 // get own posts
-router.get('/posts', verifyToken, controller.getOwnPost)
+router.get('/:id/posts', verifyToken, controller.getPostByUserId)
 
 module.exports = router

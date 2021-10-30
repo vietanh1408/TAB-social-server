@@ -1,7 +1,6 @@
-let users = [] // --> all user connect socket
+let users = []
 
 module.exports.SocketServer = (socket) => {
-  // Join socket: server <---(user)---- client
   socket.on('joinSocket', (user) => {
     users.push({
       id: user._id,
@@ -10,17 +9,16 @@ module.exports.SocketServer = (socket) => {
       avatar: user.avatar,
     })
   })
-  // Disconnect socket
+
   socket.on('disconnect', () => {
     users = users.filter((user) => user.socketId !== socket.id)
   })
 
-  // Check User Online : server <----(user)---- server
   socket.on('userOnline', (data) => {
     const followings = users.filter((user) =>
       data.followings.find((following) => following === user.id)
     )
-    // server ---->(online followings)----> client
+
     socket.emit('ownUserOnline', followings)
 
     const followers = users.filter((user) =>
@@ -34,7 +32,6 @@ module.exports.SocketServer = (socket) => {
     }
   })
 
-  // lang nghe su kien sendFriendRequest
   socket.on('sendFriendRequest', (notification) => {
     const ids = [...notification.user, notification.receivers]
     const clients = users.filter((user) => ids.includes(user.id))
@@ -47,7 +44,6 @@ module.exports.SocketServer = (socket) => {
     }
   })
 
-  // lang nghe su kien likePost => gui thong bao
   socket.on('likePost', (notification) => {
     const ids = [...notification.user, notification.receivers]
     const clients = users.filter((user) => ids.includes(user.id))
@@ -60,7 +56,6 @@ module.exports.SocketServer = (socket) => {
     }
   })
 
-  // lang nghe su kien commentPost => gui thong bao
   socket.on('commentPost', (notification) => {
     const ids = [...notification.user, notification.receivers]
     const clients = users.filter((user) => ids.includes(user.id))

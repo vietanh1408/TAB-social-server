@@ -32,9 +32,9 @@ module.exports.getUserProfile = async (req, res) => {
   }
 }
 
-module.exports.getOwnPost = async (req, res) => {
+module.exports.getPostByUserId = async (req, res) => {
   try {
-    const myPosts = await Post.find({ user: req.userId }).populate('user', [
+    const myPosts = await Post.find({ user: req.params.id }).populate('user', [
       'name',
       'avatar',
     ])
@@ -204,7 +204,7 @@ module.exports.cancelSendFriendRequest = async (req, res) => {
     )
 
     if (!currentUser) {
-      return res.status(400).json({
+      return res.status(404).json({
         success: false,
         message: messages.USER_NOT_EXIST,
       })
