@@ -158,9 +158,9 @@ module.exports.deletePost = async (req, res) => {
     // check own post
     if (post.user == req.userId) {
       await Post.findByIdAndDelete({ _id: req.params.id })
-      if (post?.image && post?.image?.publicId) {
+      if (post.image && post.image.publicId) {
         cloudinary.uploader.destroy(
-          post.image?.publicId,
+          post.image.publicId,
           async (err, result) => {
             if (err) {
               throw err
@@ -248,17 +248,12 @@ module.exports.commentAPost = async (req, res) => {
 
     await newComment.save()
 
-    const commentLength = await Comment.countDocuments({ postId: postId })
-
-    const currentPost = await Post.findByIdAndUpdate(
-      { _id: postId },
-      { commentLength: commentLength }
-    ).populate('user', ['name', 'avatar', '_id'])
+    const user = await User.findById(req.userId)
 
     return res.status(200).json({
       success: true,
       message: messages.SUCCESS,
-      comment: Object.assign(newComment, { user: currentPost.user }),
+      comment: Object.assign(newComment, { user }),
       postId: postId,
     })
   } catch (err) {

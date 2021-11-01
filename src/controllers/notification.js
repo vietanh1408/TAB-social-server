@@ -64,3 +64,39 @@ module.exports.getNotification = async (req, res) => {
     })
   }
 }
+
+module.exports.readNotification = async (req, res) => {
+  try {
+    const currentNotification = await Notification.findOneAndUpdate(
+      { _id: ObjectId(req.params.id) },
+      {
+        isRead: req.body.isRead,
+      },
+      { new: true }
+    ).populate('sender', ['name', 'avatar'])
+
+    if (!currentNotification) {
+      return res.status(400).json({
+        success: false,
+        message: messages.NOTIFICATION_NOT_EXIST,
+      })
+    }
+
+    const notificationCount = await Notification.countDocuments({
+      receivers: ObjectId(req.userId),
+      isRead: false,
+    })
+
+    return res.status(200).json({
+      success: true,
+      message: messages.SUCCESS,
+      notification: currentNotification,
+      notificationCount,
+    })
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: messages.SERVER_ERROR,
+    })
+  }
+}

@@ -36,4 +36,5 @@ module.exports.messages = {
   VERIFIED_SUBJECT: 'Mã xác thực tài khoản TAB-social',
   VERIFIED_TEXT: 'Mã xác thực tài khoản TAB-social của bạn là',
   ROOM_NOT_EXIST: 'Phòng chat không tồn tại',
+  NOTIFICATION_NOT_EXIST: 'Thông báo không tồn tại',
 }
