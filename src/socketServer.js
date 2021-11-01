@@ -33,7 +33,7 @@ module.exports.SocketServer = (socket) => {
   })
 
   socket.on('sendFriendRequest', (notification) => {
-    const ids = [...notification.sender._id, notification.receivers]
+    const ids = [...notification.receivers, notification.sender._id]
     const clients = users.filter((user) => ids.includes(user._id))
     if (clients.length > 0) {
       clients.forEach((client) => {
@@ -45,7 +45,7 @@ module.exports.SocketServer = (socket) => {
   })
 
   socket.on('likePost', (notification) => {
-    const ids = [...notification.sender._id, notification.receivers]
+    const ids = [...notification.receivers, notification.sender._id]
     const clients = users.filter((user) => ids.includes(user._id))
     if (clients.length > 0) {
       clients.forEach((client) => {
@@ -57,7 +57,7 @@ module.exports.SocketServer = (socket) => {
   })
 
   socket.on('commentPost', (notification) => {
-    const ids = [...notification.sender._id, notification.receivers]
+    const ids = [...notification.receivers, notification.sender._id]
     const clients = users.filter((user) => ids.includes(user._id))
     if (clients.length > 0) {
       clients.forEach((client) => {
