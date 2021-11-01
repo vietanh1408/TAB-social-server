@@ -18,8 +18,8 @@ module.exports.sendVerifiedEmail = async (user) => {
     const mailOptions = {
       from: process.env.EMAIL,
       to: user.email,
-      subject: 'Mã xác thực tài khoản TAB-social',
-      text: `Mã xác thực tài khoản TAB-social của bạn là ${randomCode}`,
+      subject: messages.VERIFIED_SUBJECT,
+      text: `${messages.VERIFIED_TEXT} ${randomCode}`,
     }
     smtpTransport.sendMail(mailOptions, async (err, response) => {
       if (err) {
