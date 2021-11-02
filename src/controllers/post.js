@@ -125,18 +125,25 @@ module.exports.editPost = async (req, res) => {
       })
     }
     // check own post
-    if (post.user === req.userId) {
-      await Post.findByIdAndUpdate(req.params.id, { $set: req.body })
-      return res.status(200).json({
-        success: true,
-        message: messages.UPDATE_SUCCESS,
-      })
-    } else {
+    if (post.user != req.userId) {
       return res.status(400).json({
         success: false,
         message: messages.CAN_UPDATE_YOUR_POST,
       })
     }
+
+    // edit post
+    const editedPost = await Post.findByIdAndUpdate(
+      req.params.id,
+      { $set: req.body },
+      { new: true }
+    ).populate('user', ['name', 'avatar'])
+
+    return res.status(200).json({
+      success: true,
+      message: messages.UPDATE_SUCCESS,
+      post: editedPost,
+    })
   } catch (err) {
     return res.status(500).json({
       success: false,
