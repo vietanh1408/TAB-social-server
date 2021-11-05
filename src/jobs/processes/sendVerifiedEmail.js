@@ -21,7 +21,7 @@ module.exports.sendVerifiedEmail = async (user) => {
       subject: messages.VERIFIED_SUBJECT,
       text: `${messages.VERIFIED_TEXT} ${randomCode}`,
     }
-    smtpTransport.sendMail(mailOptions, async (err, response) => {
+    await smtpTransport.sendMail(mailOptions, async (err, response) => {
       if (err) {
         return messages.SERVER_ERROR
       }
