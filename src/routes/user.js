@@ -6,9 +6,6 @@ const verifyToken = require('../middlewares/auth')
 // check match password
 router.post('/check-password', verifyToken, controller.checkPassword)
 
-// get friend requests
-router.get('/friend-request', verifyToken, controller.getFriendRequest)
-
 // send add friend request
 router.post('/send-friend-request', verifyToken, controller.sendFriendRequest)
 

@@ -5,4 +5,7 @@ const verifyToken = require('../middlewares/auth')
 // get all friend
 router.get('/', verifyToken, controller.getAllFriend)
 
+// get friend requests
+router.get('/requests', verifyToken, controller.getFriendRequest)
+
 module.exports = router

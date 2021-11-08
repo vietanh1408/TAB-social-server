@@ -52,33 +52,6 @@ module.exports.getPostByUserId = async (req, res) => {
   }
 }
 
-// get friend Request
-module.exports.getFriendRequest = async (req, res) => {
-  try {
-    const pageIndex = Number(req.body.pageIndex || 0)
-    const pageSize = Number(req.body.pageSize || 12)
-    const skip = (pageIndex - 1) * pageSize
-
-    const { friendRequests } = await User.findOne(
-      {
-        _id: ObjectId(req.userId),
-      },
-      { friendRequests: { $slice: [skip, pageSize] } }
-    )
-
-    return res.status(200).json({
-      success: true,
-      message: messages.SUCCESS,
-      friendRequests: friendRequests,
-    })
-  } catch (err) {
-    return res.status(500).json({
-      success: false,
-      message: messages.SERVER_ERROR,
-    })
-  }
-}
-
 // edit profile
 module.exports.editProfile = async (req, res) => {
   // check own profile
