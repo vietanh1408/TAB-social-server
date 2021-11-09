@@ -23,6 +23,12 @@ router.put(
   controller.acceptFriendRequest
 )
 
+router.put(
+  '/cancel-friend-request',
+  verifyToken,
+  controller.cancelFriendRequest
+)
+
 // unfriend
 router.put('/unfriend', verifyToken, controller.unFriend)
 

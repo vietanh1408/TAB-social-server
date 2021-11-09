@@ -247,6 +247,46 @@ module.exports.acceptFriendRequest = async (req, res) => {
   }
 }
 
+// cancel friend request
+module.exports.cancelFriendRequest = async (req, res) => {
+  try {
+    const currentUser = await User.findByIdAndUpdate(
+      { _id: req.userId },
+      {
+        $pull: {
+          friendRequests: req.body.friendId,
+        },
+      },
+      { new: true }
+    )
+
+    if (!currentUser) {
+      return res.status(404).json({
+        success: false,
+        message: messages.USER_NOT_EXIST,
+      })
+    }
+
+    await User.findOneAndUpdate(
+      { _id: req.body.friendId },
+      {
+        $pull: { sendFriendRequests: req.userId },
+      }
+    )
+
+    return res.status(200).json({
+      success: true,
+      message: messages.SUCCESS,
+      user: currentUser,
+    })
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: messages.SERVER_ERROR,
+    })
+  }
+}
+
 // unfriend
 module.exports.unFriend = async (req, res) => {
   try {
