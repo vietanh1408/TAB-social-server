@@ -86,22 +86,30 @@ module.exports.getConversation = async (req, res) => {
 
 module.exports.createMessage = async (req, res) => {
   try {
-    // get roomId
-    let roomId = ''
-    roomId = await RoomChat.findOne({
-      $and: [{ users: req.userId }, { users: req.body.receiver }],
-    })
-
-    if (!roomId) {
-      // get friend name
-      const { name } = await User.findById(req.body.receiver)
+    const createRoomChat = async (user, receiver) => {
+      const { name } = await User.findById(receiver)
       // create room chat
-      roomId = new RoomChat({
-        users: [req.userId, req.body.receiver],
+      const roomChat = new RoomChat({
+        users: [user, receiver],
         name,
       })
+      await roomChat.save()
 
-      await roomId.save()
+      return roomChat
+    }
+
+    // get roomId
+    let roomId = ''
+
+    if (!req.body.roomId) {
+      // create room chat
+      roomId = await createRoomChat(req.userId, req.body.receiver)
+    } else {
+      roomId = await RoomChat.findById(req.body.roomId)
+      if (!roomId) {
+        // create room chat
+        roomId = await createRoomChat(req.userId, req.body.receiver)
+      }
     }
 
     const message = new Message({
