@@ -45,32 +45,29 @@ module.exports.getAllConversation = async (req, res) => {
 
 module.exports.getConversation = async (req, res) => {
   try {
-    // get RoomID (req.params.id === friendId)
-    const currentRoomChat = await RoomChat.findOne({
-      $and: [{ users: req.userId }, { users: req.params.id }],
-    }).populate('users', 'name avatar')
+    if (!req.query.roomId) {
+      return res.status(200).json({
+        success: true,
+        message: messages.SUCCESS,
+        roomChat: null,
+        conversation: [],
+      })
+    }
 
-    // get friend name
-    const { name } = await User.findById(req.params.id)
+    const currentRoomChat = await RoomChat.findById(req.query.roomId)
 
     if (!currentRoomChat) {
-      // create room chat
-      const roomChat = new RoomChat({
-        users: [req.userId, req.params.id],
-        name,
-      })
-
-      const newRoomChat = await roomChat.save()
-
-      return res.status(201).json({
+      return res.status(200).json({
         success: true,
-        message: messages.CREATE_SUCCESS,
-        roomChat: newRoomChat,
-        conversation: null,
+        message: messages.SUCCESS,
+        roomChat: null,
+        conversation: [],
       })
     } else {
       // get conversation
-      const conversation = await Message.find({ roomId: currentRoomChat._id })
+      const conversation = await Message.find({
+        roomId: currentRoomChat._id,
+      }).sort({ createdAt: -1 })
 
       return res.status(200).json({
         success: true,
@@ -89,8 +86,34 @@ module.exports.getConversation = async (req, res) => {
 
 module.exports.createMessage = async (req, res) => {
   try {
+    const createRoomChat = async (user, receiver) => {
+      const { name } = await User.findById(receiver)
+      // create room chat
+      const roomChat = new RoomChat({
+        users: [user, receiver],
+        name,
+      })
+      await roomChat.save()
+
+      return roomChat
+    }
+
+    // get roomId
+    let roomId = ''
+
+    if (!req.body.roomId) {
+      // create room chat
+      roomId = await createRoomChat(req.userId, req.body.receiver)
+    } else {
+      roomId = await RoomChat.findById(req.body.roomId)
+      if (!roomId) {
+        // create room chat
+        roomId = await createRoomChat(req.userId, req.body.receiver)
+      }
+    }
+
     const message = new Message({
-      roomId: req.body.roomId,
+      roomId: roomId,
       from: req.userId,
       to: [req.body.receiver],
       message: req.body.message,

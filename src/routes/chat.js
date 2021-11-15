@@ -7,7 +7,7 @@ const verifyToken = require('../middlewares/auth')
 router.get('/', verifyToken, controller.getAllConversation)
 
 // get conversation by roomId
-router.get('/:id', verifyToken, controller.getConversation)
+router.get('/get-conversation', verifyToken, controller.getConversation)
 
 // create message
 router.post('/', verifyToken, controller.createMessage)
