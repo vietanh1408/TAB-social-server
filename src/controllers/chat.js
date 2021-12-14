@@ -45,33 +45,29 @@ module.exports.getAllConversation = async (req, res) => {
 
 module.exports.getConversation = async (req, res) => {
   try {
-    if (!req.query.roomId) {
-      return res.status(200).json({
-        success: true,
-        message: messages.SUCCESS,
-        roomChat: null,
-        conversation: [],
-      })
-    }
-
-    const currentRoomChat = await RoomChat.findById(req.query.roomId)
-
+    // get RoomID
+    const currentRoomChat = await RoomChat.findOne({
+      $and: [{ users: req.userId }, { users: req.params.id }],
+    }).populate('[users]')
     if (!currentRoomChat) {
+      // create room chat
+      const roomChat = new RoomChat({
+        users: [req.userId, req.params.id],
+      })
+      const newRoomChat = await roomChat.save()
+
       return res.status(200).json({
         success: true,
-        message: messages.SUCCESS,
-        roomChat: null,
+        message: 'OK',
+        roomChat: newRoomChat,
         conversation: [],
       })
     } else {
       // get conversation
-      const conversation = await Message.find({
-        roomId: currentRoomChat._id,
-      }).sort({ createdAt: -1 })
-
+      const conversation = await Message.find({ roomId: currentRoomChat._id })
       return res.status(200).json({
         success: true,
-        message: messages.SUCCESS,
+        message: 'OK3',
         roomChat: currentRoomChat,
         conversation,
       })
