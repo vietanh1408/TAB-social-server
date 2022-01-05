@@ -24,6 +24,7 @@ const friendRoute = require('./routes/friend')
 const uploadRoute = require('./routes/upload')
 const notificationRoute = require('./routes/notification')
 const chatRoute = require('./routes/chat')
+const { arena } = require('./jobs/arena')
 
 // app use
 app.use(express.json({ limit: '50mb' }))
@@ -31,10 +32,13 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: false }))
 app.use(cors())
 app.use(
-  fileUpload({
-    useTempFiles: true,
-  })
+    fileUpload({
+        useTempFiles: true,
+    })
 )
+
+// arena
+app.use('/', arena)
 
 // route api
 app.use('/api/auth', authRoute)
@@ -53,11 +57,11 @@ connectRedis()
 
 // connect socket.io
 io.on('connection', (socket) => {
-  console.log(socket.id, 'connected')
-  SocketServer(socket)
+    console.log(socket.id, 'connected')
+    SocketServer(socket)
 })
 
 // app listener
 http.listen(port, () => {
-  console.log(`🚀🚀🚀 Server start at http://localhost:${port} 🚩🚩🚩`)
+    console.log(`🚀🚀🚀 Server start at http://localhost:${port} 🚩🚩🚩`)
 })

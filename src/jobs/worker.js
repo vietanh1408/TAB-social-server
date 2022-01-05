@@ -1,8 +1,9 @@
-const { queue } = require('./queues')
+const { queues } = require('./queues')
 
 const { sendVerifiedEmail } = require('./processes/sendVerifiedEmail')
 
 /* PROCESSES */
-queue.processSendVerifiedEmail.process((job) => {
-  return sendVerifiedEmail(job)
+queues.processSendVerifiedEmail.process((job) => {
+    console.log('job.............', job)
+    return sendVerifiedEmail(job)
 })

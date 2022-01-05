@@ -5,10 +5,10 @@ const { jobType } = require('../jobType')
 const REDIS_TASK_URL = 'redis://localhost:6379/2'
 
 const processSendVerifiedEmail = new Queue(
-  jobType.PROCESS_SEND_VERIFIED_EMAIL,
-  REDIS_TASK_URL
+    jobType.PROCESS_SEND_VERIFIED_EMAIL,
+    REDIS_TASK_URL
 )
 
 module.exports.queues = {
-  processSendVerifiedEmail,
+    processSendVerifiedEmail,
 }
