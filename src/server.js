@@ -21,6 +21,7 @@ const friendRoute = require('./routes/friend')
 const uploadRoute = require('./routes/upload')
 const notificationRoute = require('./routes/notification')
 const chatRoute = require('./routes/chat')
+const searchRoute = require('./routes/search')
 
 // app use
 app.use(express.json({ limit: '50mb' }))
@@ -28,9 +29,9 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: false }))
 app.use(cors())
 app.use(
-  fileUpload({
-    useTempFiles: true,
-  })
+    fileUpload({
+        useTempFiles: true,
+    })
 )
 
 // route api
@@ -40,6 +41,7 @@ app.use('/api/users', userRoute)
 app.use('/api/friends', friendRoute)
 app.use('/api/notifications', notificationRoute)
 app.use('/api/chats', chatRoute)
+app.use('/api/search', searchRoute)
 app.use('/api/', uploadRoute)
 
 // connect mongoDB
@@ -47,11 +49,11 @@ connectDB()
 
 // connect socket.io
 io.on('connection', (socket) => {
-  console.log(socket.id, 'connected')
-  SocketServer(socket)
+    console.log(socket.id, 'connected')
+    SocketServer(socket)
 })
 
 // app listener
 http.listen(port, () => {
-  console.log(`🚀🚀🚀 Server start at http://localhost:${port} 🚩🚩🚩`)
+    console.log(`🚀🚀🚀 Server start at http://localhost:${port} 🚩🚩🚩`)
 })
