@@ -24,6 +24,8 @@ const friendRoute = require('./routes/friend')
 const uploadRoute = require('./routes/upload')
 const notificationRoute = require('./routes/notification')
 const chatRoute = require('./routes/chat')
+const searchRoute = require('./routes/search')
+
 const { arena } = require('./jobs/arena')
 
 // app use
@@ -46,7 +48,8 @@ app.use('/api/posts', postRoute)
 app.use('/api/users', userRoute)
 app.use('/api/friends', friendRoute)
 app.use('/api/notifications', notificationRoute)
-app.use('/api/chat', chatRoute)
+app.use('/api/chats', chatRoute)
+app.use('/api/search', searchRoute)
 app.use('/api/', uploadRoute)
 
 // connect mongoDB

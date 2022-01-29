@@ -1,31 +1,14 @@
 // libs
 const ObjectId = require('mongodb').ObjectID
-const cloudinary = require('cloudinary').v2
     // models
 const Post = require('../models/Post')
 const User = require('../models/User')
 const Comment = require('../models/Comment')
     // constants
-const {
-    DEFAULT_PAGE_SIZE,
-    DEFAULT_PAGE_INDEX,
-    messages,
-} = require('../constants/index')
-
-class Pagination {
-    constructor(query, queryString) {
-        this.query = query
-        this.queryString = queryString
-    }
-
-    paginating() {
-        const page = this.queryString.page * 1 || DEFAULT_PAGE_INDEX
-        const limit = this.queryString.limit * 1 || DEFAULT_PAGE_SIZE
-        const skip = (page - 1) * limit
-        this.query = this.query.skip(skip).limit(limit)
-        return this
-    }
-}
+const { messages } = require('../constants/index')
+    // extensions
+const deleteImageFromCloudinary = require('../extensions/deleteImage')
+const Pagination = require('../extensions/pagination')
 
 // get all post of friend
 module.exports.index = async(req, res) => {
@@ -125,18 +108,25 @@ module.exports.editPost = async(req, res) => {
             })
         }
         // check own post
-        if (JSON.stringify(post.user) === JSON.stringify(req.userId)) {
-            await Post.findByIdAndUpdate(req.params.id, { $set: req.body })
-            return res.status(200).json({
-                success: true,
-                message: messages.UPDATE_SUCCESS,
-            })
-        } else {
+        if (post.user != req.userId) {
             return res.status(400).json({
                 success: false,
                 message: messages.CAN_UPDATE_YOUR_POST,
             })
         }
+        // delete previous image
+        await deleteImageFromCloudinary(post)
+
+        // edit post
+        const editedPost = await Post.findByIdAndUpdate(
+            req.params.id, { $set: req.body }, { new: true }
+        ).populate('user', ['name', 'avatar'])
+
+        return res.status(200).json({
+            success: true,
+            message: messages.UPDATE_SUCCESS,
+            post: editedPost,
+        })
     } catch (err) {
         return res.status(500).json({
             success: false,
@@ -156,18 +146,10 @@ module.exports.deletePost = async(req, res) => {
             })
         }
         // check own post
-        if (JSON.stringify(post.user) === JSON.stringify(req.userId)) {
+        if (post.user == req.userId) {
             await Post.findByIdAndDelete({ _id: req.params.id })
-            if (post.image && post.image.publicId) {
-                cloudinary.uploader.destroy(
-                    post.image.publicId,
-                    async(err, result) => {
-                        if (err) {
-                            throw err
-                        }
-                    }
-                )
-            }
+            await deleteImageFromCloudinary(post)
+
             return res.status(200).json({
                 success: true,
                 message: messages.DELETE_SUCCESS,
@@ -242,14 +224,12 @@ module.exports.commentAPost = async(req, res) => {
 
         await newComment.save()
 
-        const commentLength = await Comment.countDocuments({ postId: postId })
-
-        const currentPost = await Post.findByIdAndUpdate({ _id: postId }, { commentLength: commentLength }).populate('user', ['name', 'avatar', '_id'])
+        const user = await User.findById(req.userId)
 
         return res.status(200).json({
             success: true,
             message: messages.SUCCESS,
-            comment: Object.assign(newComment, { user: currentPost.user }),
+            comment: Object.assign(newComment, { user }),
             postId: postId,
         })
     } catch (err) {

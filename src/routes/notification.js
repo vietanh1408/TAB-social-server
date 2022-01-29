@@ -9,4 +9,7 @@ router.get('/', verifyToken, controller.getNotification)
 // create notification
 router.post('/', verifyToken, controller.createNotification)
 
+// read notification
+router.patch('/:id', verifyToken, controller.readNotification)
+
 module.exports = router
