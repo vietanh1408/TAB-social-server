@@ -12,6 +12,12 @@ module.exports.getUserProfile = async(req, res) => {
     try {
         const profile = await User.findOne({ _id: req.params.id })
 
+        const currentUser = await User.findOne({ _id: req.userId })
+
+        const checkFriend = profile.friends.some(
+            (id) => JSON.stringify(id) === JSON.stringify(currentUser._id)
+        )
+
         if (!profile) {
             return res.status(404).json({
                 success: false,
@@ -22,7 +28,10 @@ module.exports.getUserProfile = async(req, res) => {
         return res.status(200).json({
             success: true,
             message: messages.SUCCESS,
-            profile: profile,
+            profile: {
+                ...profile._doc,
+                isFriend: checkFriend,
+            },
         })
     } catch (err) {
         return res.status(500).json({

@@ -13,7 +13,7 @@ const Pagination = require('../extensions/pagination')
 // get all post of friend
 module.exports.index = async(req, res) => {
     try {
-        const currentUser = await User.findOne({ _id: req.userId })
+        const currentUser = await User.findOne({ _id: req.userId }, { followings: 1, _id: 1 })
         const { followings, _id } = currentUser
 
         // get post of followings
@@ -30,10 +30,24 @@ module.exports.index = async(req, res) => {
 
         const postLength = await Post.countDocuments({ user: [...followings, _id] })
 
+        const result = posts.map((post) => {
+            const checkOwn = JSON.stringify(post.user._id) === JSON.stringify(_id)
+            if (checkOwn) {
+                return {
+                    ...post._doc,
+                    isYour: true,
+                }
+            }
+            return {
+                ...post._doc,
+                isYour: false,
+            }
+        })
+
         return res.status(200).json({
             success: true,
             message: messages.SUCCESS,
-            posts: posts,
+            posts: result,
             postLength,
         })
     } catch (err) {
@@ -48,6 +62,9 @@ module.exports.index = async(req, res) => {
 module.exports.getPostById = async(req, res) => {
     try {
         const id = ObjectId(req.params.id)
+
+        const currentUser = await User.findOne({ _id: req.userId }, { _id: 1 })
+
         const post = await Post.findOne({ _id: id })
             .populate('user', ['name', 'avatar'])
             .populate('comment')
@@ -57,10 +74,16 @@ module.exports.getPostById = async(req, res) => {
                 message: messages.POST_NOT_EXIST,
             })
         }
+
+        const checkOwnPost =
+            JSON.stringify(post.user) === JSON.stringify(currentUser._id)
         return res.status(200).json({
             success: true,
             message: messages.SUCCESS,
-            post: post,
+            post: {
+                ...post._doc,
+                isYours: checkOwnPost,
+            },
         })
     } catch (err) {
         return res.status(500).json({
