@@ -102,8 +102,6 @@ module.exports.register = async(req, res) => {
             environments.ACCESS_TOKEN_SECRET
         )
 
-        console.log('run................................')
-
         const result = await queues.processSendVerifiedEmail.add(newUser)
 
         console.log('result........', result)

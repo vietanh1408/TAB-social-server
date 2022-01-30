@@ -9,6 +9,8 @@ module.exports.search = async(req, res) => {
     try {
         const { keyword, type } = req.query || {}
 
+        const currentUser = await User.findOne({ _id: req.userId }, { _id: 1 })
+
         let searchResult = {
             users: [],
             posts: [],
@@ -21,8 +23,6 @@ module.exports.search = async(req, res) => {
                 User.find({ name: { $regex: keyword } }),
                 req.query
             ).paginating()
-
-            const currentUser = await User.findOne({ _id: req.userId }, { _id: 1 })
 
             const searchUser = await searchUserQuery.query.sort({ name: -1 })
 
@@ -70,8 +70,23 @@ module.exports.search = async(req, res) => {
 
             searchResult.totalPost = countPost
 
-            if (searchPost && searchPost.length > 0) {
-                searchResult.posts.push(...searchPost)
+            const result = searchPost.map((post) => {
+                const checkOwn =
+                    JSON.stringify(post.user._id) === JSON.stringify(currentUser._id)
+                if (checkOwn) {
+                    return {
+                        ...post._doc,
+                        isYour: true,
+                    }
+                }
+                return {
+                    ...post._doc,
+                    isYour: false,
+                }
+            })
+
+            if (result && result.length > 0) {
+                searchResult.posts.push(...result)
             }
         }
 
