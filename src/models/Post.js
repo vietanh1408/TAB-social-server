@@ -36,6 +36,7 @@ const PostSchema = new Schema({
         type: Number,
         default: 0,
     },
+    comments: [{ type: Types.ObjectId, ref: 'comment' }],
     commentLength: {
         type: Number,
         default: 0,

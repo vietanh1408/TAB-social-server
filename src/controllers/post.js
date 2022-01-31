@@ -205,19 +205,18 @@ module.exports.likeAPost = async(req, res) => {
             })
         }
 
-        const updatedPost = await Post.updateOne({
+        const updatedPost = await Post.findByIdAndUpdate({
             _id: ObjectId(currentPost._id),
         }, {
             $addToSet: {
                 likes: req.userId,
             },
             $set: {
-                likeLength: currentPost.likeLength++,
+                likeLength: currentPost.likeLength + 1,
             },
         }, {
             new: true,
         })
-        console.log('updatedPost...', updatedPost)
         return res.status(200).json({
             success: true,
             message: messages.SUCCESS,
@@ -234,14 +233,32 @@ module.exports.likeAPost = async(req, res) => {
 // dislike a post
 module.exports.dislikeAPost = async(req, res) => {
     try {
-        await Post.updateOne({
+        const currentPost = await Post.findOne({ _id: ObjectId(req.body.postId) }, { _id: 1, likeLength: 1 })
+
+        if (!currentPost) {
+            return res.status(500).json({
+                success: false,
+                message: messages.POST_NOT_EXIST,
+            })
+        }
+
+        const updatedPost = await Post.findByIdAndUpdate({
             _id: ObjectId(req.body.postId),
         }, {
             $pull: { likes: req.userId },
+            $set: {
+                likeLength: currentPost.likeLength - 1,
+            },
+        }, {
+            new: true,
         })
+
+        console.log('dislike....', updatedPost)
+
         return res.status(200).json({
             success: true,
             message: messages.SUCCESS,
+            post: updatedPost,
         })
     } catch (err) {
         return res.status(500).json({
@@ -255,6 +272,17 @@ module.exports.dislikeAPost = async(req, res) => {
 module.exports.commentAPost = async(req, res) => {
     try {
         const { postId, comment, authorId } = req.body
+
+        const currentPost = await Post.findOne({ _id: ObjectId(postId) }, { _id: 1, commentLength: 1 })
+        console.log('req.body.....', req.body)
+
+        if (!currentPost) {
+            return res.status(500).json({
+                success: false,
+                message: messages.POST_NOT_EXIST,
+            })
+        }
+
         const newComment = new Comment({
             content: comment,
             user: req.userId,
@@ -262,15 +290,33 @@ module.exports.commentAPost = async(req, res) => {
             postUserId: authorId,
         })
 
-        await newComment.save()
+        const commentDoc = await newComment.save()
 
         const user = await User.findById(req.userId)
+
+        console.log('comment...', commentDoc)
+
+        const updatedPost = await Post.findByIdAndUpdate({
+            _id: ObjectId(currentPost._id),
+        }, {
+            $addToSet: {
+                comments: ObjectId(commentDoc._id),
+            },
+            $set: {
+                commentLength: currentPost.commentLength + 1,
+            },
+        }, {
+            new: true,
+        })
+
+        console.log('updatedPost....', updatedPost)
 
         return res.status(200).json({
             success: true,
             message: messages.SUCCESS,
             comment: Object.assign(newComment, { user }),
             postId: postId,
+            post: updatedPost,
         })
     } catch (err) {
         return res.status(500).json({
@@ -323,6 +369,7 @@ module.exports.removeComment = async(req, res) => {
 module.exports.getCommentById = async(req, res) => {
     try {
         const currentPost = await Post.findById(req.params.id)
+
         if (!currentPost) {
             return res.status(404).json({
                 success: false,
@@ -349,8 +396,10 @@ module.exports.getCommentById = async(req, res) => {
         return res.status(200).json({
             success: true,
             message: messages.SUCCESS,
-            comments: commentList,
-            postId: currentPost._id,
+            post: {
+                ...currentPost._doc,
+                comments: commentList,
+            },
         })
     } catch (error) {
         return res.status(500).json({

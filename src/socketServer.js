@@ -14,7 +14,6 @@ module.exports.SocketServer = (socket) => {
         users = users.filter((user) => user.socketId !== socket.id)
     })
 
-    console.log('users...................', users)
     socket.on('userOnline', (data) => {
         const followings = users.filter((user) =>
             data.followings.find((following) => following === user._id)
