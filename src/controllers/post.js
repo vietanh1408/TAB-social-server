@@ -32,15 +32,13 @@ module.exports.index = async(req, res) => {
 
         const result = posts.map((post) => {
             const checkOwn = JSON.stringify(post.user._id) === JSON.stringify(_id)
-            if (checkOwn) {
-                return {
-                    ...post._doc,
-                    isYour: true,
-                }
-            }
+            const checkLiked = post.likes.some(
+                (id) => JSON.stringify(id) === JSON.stringify(currentUser._id)
+            )
             return {
                 ...post._doc,
-                isYour: false,
+                isYour: checkOwn,
+                isLiked: checkLiked,
             }
         })
 
@@ -61,11 +59,9 @@ module.exports.index = async(req, res) => {
 // get post by id
 module.exports.getPostById = async(req, res) => {
     try {
-        const id = ObjectId(req.params.id)
-
         const currentUser = await User.findOne({ _id: req.userId }, { _id: 1 })
 
-        const post = await Post.findOne({ _id: id })
+        const post = await Post.findOne({ _id: ObjectId(req.params.id) })
             .populate('user', ['name', 'avatar'])
             .populate('comment')
         if (!post) {
@@ -75,6 +71,10 @@ module.exports.getPostById = async(req, res) => {
             })
         }
 
+        const checkLiked = post.likes.some(
+            (id) => JSON.stringify(id) === JSON.stringify(currentUser._id)
+        )
+
         const checkOwnPost =
             JSON.stringify(post.user) === JSON.stringify(currentUser._id)
         return res.status(200).json({
@@ -83,6 +83,7 @@ module.exports.getPostById = async(req, res) => {
             post: {
                 ...post._doc,
                 isYours: checkOwnPost,
+                isLiked: checkLiked,
             },
         })
     } catch (err) {
@@ -195,16 +196,32 @@ module.exports.deletePost = async(req, res) => {
 // like a post
 module.exports.likeAPost = async(req, res) => {
     try {
-        await Post.updateOne({
-            _id: ObjectId(req.body.postId),
+        const currentPost = await Post.findOne({ _id: ObjectId(req.body.postId) }, { _id: 1, likeLength: 1 })
+
+        if (!currentPost) {
+            return res.status(500).json({
+                success: false,
+                message: messages.POST_NOT_EXIST,
+            })
+        }
+
+        const updatedPost = await Post.updateOne({
+            _id: ObjectId(currentPost._id),
         }, {
             $addToSet: {
                 likes: req.userId,
             },
+            $set: {
+                likeLength: currentPost.likeLength++,
+            },
+        }, {
+            new: true,
         })
+        console.log('updatedPost...', updatedPost)
         return res.status(200).json({
             success: true,
             message: messages.SUCCESS,
+            post: updatedPost,
         })
     } catch (err) {
         return res.status(500).json({
