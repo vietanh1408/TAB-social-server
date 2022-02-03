@@ -67,4 +67,18 @@ module.exports.SocketServer = (socket) => {
             })
         }
     })
+
+    socket.on('sendMessage', (data) => {
+        const ids = [data.receiver, data.sender]
+        console.log('data...........', data)
+        console.log('ids...........', ids)
+        const clients = users.filter((user) => ids.includes(user._id))
+        console.log('clients...........', clients)
+        if (clients.length > 0) {
+            console.log('gui tin nhan...........')
+            clients.forEach((client) => {
+                socket.to(`${client.socketId}`).emit('receiveMessage', data)
+            })
+        }
+    })
 }

@@ -34,9 +34,6 @@ module.exports.getAllConversation = async(req, res) => {
             }
         })
 
-        console.log('roomChats....', roomChats)
-        console.log('result....', result)
-
         const conversations = []
         roomChats.forEach((room) => {
             const message = result.find(
@@ -80,7 +77,10 @@ module.exports.getConversation = async(req, res) => {
             })
         }
 
-        const currentRoomChat = await RoomChat.findById(req.query.roomId)
+        const currentRoomChat = await RoomChat.findById(req.query.roomId).populate(
+            'users',
+            '_id name avatar'
+        )
 
         if (!currentRoomChat) {
             return res.status(200).json({
@@ -91,15 +91,28 @@ module.exports.getConversation = async(req, res) => {
             })
         } else {
             // get conversation
-            const conversation = await Message.find({
+            const conversations = await Message.find({
                 roomId: currentRoomChat._id,
-            }).sort({ createdAt: -1 })
+            }).sort({ createdAt: 1 })
+
+            const result = conversations.map((conversation) => {
+                if (JSON.stringify(conversation.from) === JSON.stringify(req.userId)) {
+                    return {
+                        ...conversation._doc,
+                        isYour: true,
+                    }
+                }
+                return {
+                    ...conversation._doc,
+                    isYour: false,
+                }
+            })
 
             return res.status(200).json({
                 success: true,
                 message: messages.SUCCESS,
                 roomChat: currentRoomChat,
-                conversation,
+                conversation: result,
             })
         }
     } catch (err) {
@@ -126,6 +139,8 @@ module.exports.createMessage = async(req, res) => {
 
         // get roomId
         let roomId = ''
+
+        console.log('req.body.............', req.body)
 
         if (!req.body.roomId) {
             // create room chat
