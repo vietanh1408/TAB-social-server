@@ -1,6 +1,6 @@
 module.exports.DEFAULT_PAGE_INDEX = 1
 
-module.exports.DEFAULT_PAGE_SIZE = 10
+module.exports.DEFAULT_PAGE_SIZE = 3
 
 module.exports.CHARACTERS =
     'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'

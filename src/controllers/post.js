@@ -408,3 +408,51 @@ module.exports.getCommentById = async(req, res) => {
         })
     }
 }
+
+// get posts by profile id
+module.exports.getPostsByProfileId = async (req, res) => {
+    try {
+        const postQuery = new Pagination(
+          Post.find({
+              user: req.params.id,
+              isPublic: true
+          }),
+          req.query
+        ).paginating()
+
+        const posts = await postQuery.query
+          .sort({ createdAt: -1 })
+          .populate('user', 'name avatar')
+
+        console.log('posts..........', posts.length)
+
+        const postLength = await Post.countDocuments({ user: req.params.id })
+
+        console.log('postLength......', postLength)
+
+        const result = posts.map((post) => {
+            const checkOwn = JSON.stringify(post.user._id) === JSON.stringify(req.userId)
+            const checkLiked = post.likes.some(
+              (id) => JSON.stringify(id) === JSON.stringify(req.userId)
+            )
+            return {
+                ...post._doc,
+                isYour: checkOwn,
+                isLiked: checkLiked,
+            }
+        })
+
+        return res.status(200).json({
+            success: true,
+            message: messages.SUCCESS,
+            posts: result,
+            postLength,
+        })
+
+    }catch(err) {
+        return res.status(500).json({
+            success: false,
+            message: messages.SERVER_ERROR,
+        })
+    }
+}

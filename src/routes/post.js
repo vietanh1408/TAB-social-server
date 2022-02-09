@@ -33,4 +33,7 @@ router.delete('/:id', verifyToken, controller.deletePost)
 // get one post
 router.get('/:id', verifyToken, controller.getPostById)
 
+// get post by profile id
+router.get('/profile/:id', verifyToken, controller.getPostsByProfileId)
+
 module.exports = router
