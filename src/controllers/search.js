@@ -5,7 +5,7 @@ const User = require('../models/User')
 const Post = require('../models/Post')
 const Pagination = require('../extensions/pagination')
 
-module.exports.search = async(req, res) => {
+module.exports.search = async (req, res) => {
     try {
         const { keyword, type } = req.query || {}
 
@@ -26,7 +26,8 @@ module.exports.search = async(req, res) => {
 
             const searchUser = await searchUserQuery.query.sort({ name: -1 })
 
-            const users = searchUser.map((user) => {
+
+            const users = searchUser.filter((user) => JSON.stringify(user._id) !== JSON.stringify(req.userId)).map((user) => {
                 const checkFriend = user.friends.some(
                     (friendId) => friendId == currentUser._id
                 )

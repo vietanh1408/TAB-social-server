@@ -5,8 +5,8 @@
     "main": "index.js",
     "scripts": {
         "start": "nodemon --inspect src/server.js",
-        "worker": "node ./build/jobs/worker.js",
-        "worker:dev": "nodemon src/jobs/bull.js",
+        "worker": "nodemon ./build/jobs/worker.js",
+        "worker:dev": "nodemon src/jobs/worker.js",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "author": "",

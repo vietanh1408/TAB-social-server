@@ -14,6 +14,9 @@ const arenaQueues = (queues) => {
                 redis: {
                     port: 6379,
                     host: 'localhost',
+                    maxRetriesPerRequest: null,
+                    enableReadyCheck: true,
+                    autoResubscribe: true
                 },
             }
         })
@@ -22,6 +25,6 @@ const arenaQueues = (queues) => {
 }
 
 module.exports.arena = Arena({ Bull, queues: arenaQueues(queues) }, {
-    disableListen: true,
+    disableListen: false,
     basePath: '/arena',
 })

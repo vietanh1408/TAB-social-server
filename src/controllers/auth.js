@@ -4,16 +4,17 @@ const bcrypt = require('bcryptjs')
 const { google } = require('googleapis')
 const { OAuth2 } = google.auth
 const client = new OAuth2(environments.GOOGLE_CLIENT_ID)
-    // models
+// models
 const User = require('../models/User')
-    // helpers
+// helpers
 const { createAccessToken } = require('../helpers/generateToken')
-    // constants
+const { generateCode } = require('../extensions/generate')
+// constants
 const { messages } = require('../constants/index')
 const { queues } = require('../jobs/queues/index')
 
 // check authenticated
-module.exports.checkAuth = async(req, res) => {
+module.exports.checkAuth = async (req, res) => {
     try {
         const user = await User.findById(req.userId)
         if (!user) {
@@ -36,7 +37,7 @@ module.exports.checkAuth = async(req, res) => {
 }
 
 // CHECK VERIFY CODE
-module.exports.checkVerify = async(req, res) => {
+module.exports.checkVerify = async (req, res) => {
     try {
         const correctUser = await User.findOneAndUpdate({
             verifyCode: req.body.code,
@@ -66,7 +67,7 @@ module.exports.checkVerify = async(req, res) => {
 }
 
 // REGISTER
-module.exports.register = async(req, res) => {
+module.exports.register = async (req, res) => {
     // check email already exist
     const emailExist = await User.findOne({ email: req.body.email })
     if (emailExist) {
@@ -80,48 +81,44 @@ module.exports.register = async(req, res) => {
     if (phoneExist) {
         return res.status(400).json({
             success: false,
-            message: message.PHONE_ALREADY_USED,
+            message: messages.PHONE_ALREADY_USED,
         })
     }
+
     // hash password
     const salt = await bcrypt.genSalt(10)
     req.body.password = await bcrypt.hash(req.body.password, salt)
 
     try {
+        const randomCode = generateCode(6)
+
+        queues.processSendVerifiedEmail.add({ email: req.body.email, code: randomCode })
+
         // create new user
         const user = new User({
             name: req.body.name,
             email: req.body.email,
             phone: req.body.phone,
             password: req.body.password,
+            verifyCode: randomCode
         })
+
         const newUser = await user.save()
-            // return token
+        // return token
         const accessToken = await createAccessToken(
             newUser._id,
             environments.ACCESS_TOKEN_SECRET
         )
 
-        const result = await queues.processSendVerifiedEmail.add(newUser)
-
-        console.log('result........', result)
+        const { password, verifyCode, ...rest } = newUser._doc
 
         return res.status(200).json({
             success: true,
             message: messages.SEND_MAIL_SUCCESS,
-            accessToken,
-            user: result.data,
+            accessToken: '123',
+            user: rest,
         })
-
-        // if (!result || result.data === messages.SERVER_ERROR) {
-        //     return res.status(500).json({
-        //         success: false,
-        //         message: messages.SERVER_ERROR,
-        //     })
-        // } else {
-
-        // }
-    } catch (err) {
+    } catch (error) {
         return res.status(500).json({
             success: false,
             message: messages.SERVER_ERROR,
@@ -130,7 +127,7 @@ module.exports.register = async(req, res) => {
 }
 
 // LOGIN
-module.exports.login = async(req, res) => {
+module.exports.login = async (req, res) => {
     try {
         // check email login
         const user = await User.findOne({
@@ -171,7 +168,7 @@ module.exports.login = async(req, res) => {
 }
 
 // LOGOUT
-module.exports.logout = async(req, res) => {
+module.exports.logout = async (req, res) => {
     try {
         res.clearCookie('refreshToken', { path: '/api/auth/refresh-token' })
         return res.status(200).json({
@@ -187,7 +184,7 @@ module.exports.logout = async(req, res) => {
 }
 
 // refresh token
-module.exports.refreshToken = async(req, res) => {
+module.exports.refreshToken = async (req, res) => {
     try {
         const refreshToken = req.cookies.refreshToken
     } catch (err) {
@@ -199,7 +196,7 @@ module.exports.refreshToken = async(req, res) => {
 }
 
 // login with google
-module.exports.loginWithGG = async(req, res) => {
+module.exports.loginWithGG = async (req, res) => {
     try {
         const { tokenId } = req.body
         const verify = await client.verifyIdToken({
@@ -208,7 +205,7 @@ module.exports.loginWithGG = async(req, res) => {
         })
         const { email_verified, email, name, picture } = verify.payload
         const password = email + environments.GOOGLE_CLIENT_CODE
-            // hash password
+        // hash password
         const salt = await bcrypt.genSalt(10)
         const hashPassword = await bcrypt.hash(password, salt)
         if (!email_verified) {
@@ -219,7 +216,7 @@ module.exports.loginWithGG = async(req, res) => {
         }
         // check da ton tai user trong DB chua
         const user = await User.findOne({ email })
-            // da co user
+        // da co user
         if (user) {
             // check password
             const validPassword = await bcrypt.compare(password, user.password)
@@ -253,7 +250,7 @@ module.exports.loginWithGG = async(req, res) => {
                 isVerifiedMail: true,
             })
             const newUser = await user.save()
-                // return token
+            // return token
             const accessToken = await createAccessToken(
                 newUser._id,
                 environments.ACCESS_TOKEN_SECRET
@@ -274,7 +271,7 @@ module.exports.loginWithGG = async(req, res) => {
 }
 
 // forgot password
-module.exports.forgotPassword = async(req, res) => {
+module.exports.forgotPassword = async (req, res) => {
     try {
         // check user exist
         const currentUser = await User.findOne({ email: req.body.email })
@@ -307,7 +304,7 @@ module.exports.forgotPassword = async(req, res) => {
 }
 
 // check change password code
-module.exports.checkChangePasswordCode = async(req, res) => {
+module.exports.checkChangePasswordCode = async (req, res) => {
     try {
         // check valid code
         const currentUser = await User.findOne({ verifyCode: req.body.code })
