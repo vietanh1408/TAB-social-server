@@ -4,8 +4,9 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "start": "nodemon --inspect src/server.js",
-        "worker": "nodemon ./build/jobs/worker.js",
+        "start": "node src/server.js",
+        "start:dev": "nodemon --inspect src/server.js",
+        "worker": "node src/jobs/worker.js",
         "worker:dev": "nodemon src/jobs/worker.js",
         "test": "echo \"Error: no test specified\" && exit 1"
     },
