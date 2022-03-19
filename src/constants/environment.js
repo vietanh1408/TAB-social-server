@@ -1,6 +1,7 @@
 require('dotenv').config()
 
 console.log('process.env.NODE_ENV.....', process.env.NODE_ENV)
+console.log('process.env.production.ONLINE_DB....', process.env.production.ONLINE_DB)
 const environments = {
   PORT: process.env.PORT || 4000,
   GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
@@ -14,7 +15,7 @@ const environments = {
   MONGO_URI:
     process.env.NODE_ENV === 'production'
       ? process.env.ONLINE_DB
-      : process.env.production.MONGO_URI || 'mongodb://localhost/TAB-social',
+      : process.env.MONGO_URI || 'mongodb://localhost/TAB-social',
 }
 
 module.exports = environments
